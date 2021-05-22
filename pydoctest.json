@@ -1,0 +1,6 @@
+{
+    "parser": "google",
+    "verbosity": 2,
+    "include_paths": [ "pydoctest/*.py", "pydoctest/**/*.py" ],
+    "fail_on_missing_docstring": true
+}

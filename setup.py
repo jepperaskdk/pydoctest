@@ -3,28 +3,26 @@ import setuptools
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-# packages = setuptools.find_packages(where="src")
-packages = [ '.' ]
+packages = setuptools.find_packages()
 print(packages)
-
 setuptools.setup(
-    name="flowdoctest",
-    version="0.0.1",
+    name="pydoctest",
+    version="0.1.0",
     author="Jeppe Rask",
     author_email="jepperaskdk@gmail.com",
     description="Test if doctype types match signatures",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/jepperaskdk/doctest",
+    url="https://github.com/jepperaskdk/pydoctest",
     project_urls={
-        "Bug Tracker": "https://github.com/jepperaskdk/doctest/issues",
+        "Bug Tracker": "https://github.com/jepperaskdk/pydoctest/issues",
     },
-    package_dir={"": "src"},
+    package_dir={"": "."},
+    packages=packages,
     entry_points={
         'console_scripts': [
-            'flowdoctest=flowdoctest:main'
+            'pydoctest=pydoctest.main:main'
         ]
     },
-    # packages=packages,
     python_requires=">=3.6",
 )
