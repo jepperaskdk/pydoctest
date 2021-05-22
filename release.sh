@@ -7,4 +7,4 @@ python3.6 -m pip install --upgrade virtualenv
 python3.6 -m pip install --upgrade twine
 
 python3.6 -m build
-python3.6 -m twine upload --repository testpypi dist/*
+python3.6 -m twine upload --repository pypi dist/*
