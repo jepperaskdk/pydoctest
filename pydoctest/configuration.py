@@ -25,6 +25,9 @@ PARSERS = {
 
 class Configuration():
     def __init__(self) -> None:
+        """Configuration object to be used while running pydoctest.
+        The properties here can be overridden with a pydoctest.json config file.
+        """
         self.working_directory: str = ""
         # Empty include_paths assumes all directories in current directory
         self.include_paths: List[str] = []
@@ -41,11 +44,21 @@ class Configuration():
 
     @staticmethod
     def get_default_configuration() -> 'Configuration':
+        """Returns a configuration with default values.
+
+        Returns:
+            'Configuration': A default configuration.
+        """
         log("Using default configuration")
         return Configuration()
 
     @staticmethod
     def get_configuration_from_path(config_path: str) -> 'Configuration':
+        """Returns a configuration, loaded from the pydoctest.json provided.
+
+        Returns:
+            'Configuration': A configuration loaded with values from provided path.
+        """
         config_path_absolute = os.path.abspath(config_path)
         log(f"Using configuration from path: {config_path_absolute}")
 
@@ -57,6 +70,11 @@ class Configuration():
 
     @staticmethod
     def from_dict(x: Dict[str, Any]) -> 'Configuration':
+        """Given a dictionary, returns a Configuration object.
+
+        Returns:
+            'Configuration': A configuration loaded with values from the dictionary.
+        """
         obj = Configuration()
         for key, value in x.items():
             if hasattr(obj, key):
@@ -66,10 +84,14 @@ class Configuration():
                 sys.exit(1)
         return obj
 
-    def validate(self) -> None:
-        self.get_parser()
-
     def get_parser(self) -> Parser:
+        """Checks if the desired Parser exists and returns it.
+
+        TODO: Currently we sys.exit directly. Should we handle it differently?
+
+        Returns:
+            Parser: A supported Parser.
+        """
         if self.parser in PARSERS.keys():
             return PARSERS[self.parser]()
         else:
