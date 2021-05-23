@@ -59,4 +59,3 @@ License
 -------
 
 Pydoctest is licensed under the terms of the MIT License (see the LICENSE file).
-
