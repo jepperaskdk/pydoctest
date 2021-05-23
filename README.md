@@ -1,4 +1,8 @@
 pydoctest: docstring signature verification
+
+![example workflow](https://github.com/jepperaskdk/pydoctest/actions/workflows/python-package.yml/badge.svg)
+[![codecov](https://codecov.io/gh/jepperaskdk/pydoctest/branch/main/graph/badge.svg?token=NSOW53NY9R)](https://codecov.io/gh/jepperaskdk/pydoctest)
+
 =======================================
 File issues here: [Issues tracker](https://github.com/jepperaskdk/pydoctest/issues)
 
