@@ -35,9 +35,17 @@ class GoogleParser(Parser):
         if 'Args:' not in doc:
             return []
         _, tail = doc.split("Args:")
-        arguments_string, _ = tail.split("Returns:")
+
+        if 'Returns:' in tail:
+            arguments_string, _ = tail.split('Returns:')
+        else:
+            arguments_string = tail
+
+        if 'Raises' in arguments_string:
+            arguments_string, _ = tail.split('Raises:')
 
         # TODO: Improve this. We might encounter more newlines.
+        # Google styleguide appears to suggest using tab-indents for separating arguments
         # Could perhaps regex for NAME (TYPE): DESCRIPTION
         args_strings = [arg.strip() for arg in arguments_string.strip().split("\n")]
 

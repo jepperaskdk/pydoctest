@@ -31,6 +31,7 @@ class ResultType(Enum):
 
 class Result():
     def __init__(self) -> None:
+        # TODO: Rename result -> Status?
         self.result: ResultType = ResultType.NOT_RUN
         self.fail_reason: str = ""
 
@@ -146,13 +147,13 @@ def validate_function(fn: FunctionType, config: Configuration, module_type: Modu
 
     sig = inspect.signature(fn)
     sig_parameters = [Parameter(name, proxy.annotation) for name, proxy in sig.parameters.items() if name != "self"]
-    sig_return_type = type_to_string(sig.return_annotation)
+    sig_return_type = type(None) if sig.return_annotation is None else sig.return_annotation
 
     parser = config.get_parser()
     doc_parameters = parser.get_parameters(doc, module_type)
     doc_return_type = parser.get_return_type(doc, module_type)
 
-    if sig_return_type.split(".")[-1] != doc_return_type:
+    if sig_return_type != doc_return_type:
         result.result = ResultType.FAILED
         result.fail_reason = f"Return type differ. Expected (from signature) {sig_return_type}, but got (in docs) {doc_return_type}."
         return result
@@ -172,6 +173,8 @@ def validate_function(fn: FunctionType, config: Configuration, module_type: Modu
             result.result = ResultType.FAILED
             result.fail_reason = f"Argument type differ. Argument '{sigparam.name}' was expected (from signature) to have type '{sigparam.type}', but has (in docs) type '{docparam.type}'"
             break
+
+    result.result = ResultType.OK
     return result
 
 
@@ -184,4 +187,9 @@ def validate_class(class_instance: Any, config: Configuration, module_type: Modu
             if function_result.result == ResultType.FAILED:
                 class_result.result = ResultType.FAILED
             class_result.function_results.append(function_result)
+
+    # If result has not been changed at this point, it must be OK
+    if class_result.result == ResultType.NOT_RUN:
+        class_result.result = ResultType.OK
+
     return class_result
