@@ -10,7 +10,7 @@
             "module": "pydoctest.main",
             "request": "launch",
             "console": "integratedTerminal",
-            "args": [ "" ]
+            "args": [ "--debug" ]
         }
     ]
 }

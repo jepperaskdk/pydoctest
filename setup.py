@@ -3,8 +3,6 @@ import setuptools
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-packages = setuptools.find_packages()
-print(packages)
 setuptools.setup(
     name="pydoctest",
     version="0.1.0",
@@ -18,7 +16,7 @@ setuptools.setup(
         "Bug Tracker": "https://github.com/jepperaskdk/pydoctest/issues",
     },
     package_dir={"": "."},
-    packages=packages,
+    packages=setuptools.find_packages(),
     entry_points={
         'console_scripts': [
             'pydoctest=pydoctest.main:main'

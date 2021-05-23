@@ -10,6 +10,14 @@ SKIPPED = "SKIPPED"
 
 class TextReporter(Reporter):
     def get_output(self, result: ValidationResult) -> str:
+        """Returns the text output by walking the ValidationResult object.
+
+        Args:
+            result (ValidationResult): The results from running Pydoctest
+
+        Returns:
+            str: The output to be returned.
+        """
         output = ""
         for module_result in result.module_results:
             output += self.get_module_output(module_result)

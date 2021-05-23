@@ -13,7 +13,12 @@ from pydoctest.configuration import Configuration
 class ValidationCounts():
     def __init__(self) -> None:
         self.module_count = 0
-        self.function_count = 0
+        self.functions_succeeded = 0
+        self.functions_failed = 0
+        self.functions_skipped = 0
+
+    def get_total(self) -> int:
+        return self.functions_succeeded + self.functions_failed + self.functions_skipped
 
 
 class ResultType(Enum):
@@ -34,27 +39,32 @@ class Result():
         return { 'result': self.result, 'fail_reason': self.fail_reason }
 
 
-class ValidationResult(Result):
-    def __init__(self) -> None:
+class FunctionValidationResult(Result):
+    def __init__(self, fn: FunctionType) -> None:
         super().__init__()
-        self.module_results: List[ModuleValidationResult] = []
+        self.function = fn
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             **super().to_dict(),
-            'module_results': [
-                r.to_dict() for r in self.module_results
-            ]
+            'function_name': self.function.__name__
         }
 
-    def get_counts(self) -> ValidationCounts:
-        counts = ValidationCounts()
-        counts.module_count = len(self.module_results)
-        for m in self.module_results:
-            counts.function_count += len(m.function_results)
-            for c in m.class_results:
-                counts.function_count += len(c.function_results)
-        return counts
+
+class ClassValidationResult(Result):
+    def __init__(self, class_name: str) -> None:
+        super().__init__()
+        self.class_name = class_name
+        self.function_results: List[FunctionValidationResult] = []
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            **super().to_dict(),
+            'class_name': self.class_name,
+            'function_results': [
+                r.to_dict() for r in self.function_results
+            ]
+        }
 
 
 class ModuleValidationResult(Result):
@@ -77,32 +87,38 @@ class ModuleValidationResult(Result):
         }
 
 
-class ClassValidationResult(Result):
-    def __init__(self, class_name: str) -> None:
+class ValidationResult(Result):
+    def __init__(self) -> None:
         super().__init__()
-        self.class_name = class_name
-        self.function_results: List[FunctionValidationResult] = []
+        self.module_results: List[ModuleValidationResult] = []
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             **super().to_dict(),
-            'class_name': self.class_name,
-            'function_results': [
-                r.to_dict() for r in self.function_results
+            'module_results': [
+                r.to_dict() for r in self.module_results
             ]
         }
 
+    def get_counts(self) -> ValidationCounts:
+        counts = ValidationCounts()
+        counts.module_count = len(self.module_results)
 
-class FunctionValidationResult(Result):
-    def __init__(self, fn: FunctionType) -> None:
-        super().__init__()
-        self.function = fn
+        def increment(fn_result: FunctionValidationResult) -> None:
+            if fn_result.result == ResultType.FAILED:
+                counts.functions_failed += 1
+            elif fn_result.result == ResultType.OK:
+                counts.functions_succeeded += 1
+            else:
+                counts.functions_skipped += 1
 
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            **super().to_dict(),
-            'function_name': self.function.__name__
-        }
+        for m in self.module_results:
+            for fn in m.function_results:
+                increment(fn)
+            for c in m.class_results:
+                for fn in c.function_results:
+                    increment(fn)
+        return counts
 
 
 def type_to_string(t: Type) -> str:

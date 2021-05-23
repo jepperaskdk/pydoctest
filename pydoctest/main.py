@@ -136,6 +136,16 @@ def get_configuration(root_dir: str, config_path: Optional[str] = None) -> Confi
 
 
 def get_reporter(reporter: Optional[str], config: Configuration) -> Reporter:
+    """We offer to output results using either TextReporter and JSONReporter.
+    This list of reporters can be extended with more reporters as they simply implement a get_output function.
+
+    Args:
+        reporter (Optional[str]): Desired reporter [text | json]
+        config (Configuration): The configuration currently used.
+
+    Returns:
+        Reporter: Reporter if provided, otherwise text.
+    """
     if reporter is None:
         return REPORTERS['text'](config)
 
@@ -147,6 +157,8 @@ def get_reporter(reporter: Optional[str], config: Configuration) -> Reporter:
 
 
 def main() -> None:
+    """Main function invoked when running script.
+    """
     # TODO: Could allow arguments directly to pydoctest for overriding .json config arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", help="Path to config JSON file, e.g. pydoctest.json")
@@ -173,7 +185,8 @@ def main() -> None:
     if config.verbosity != Verbosity.QUIET:
         output = reporter.get_output(result)
         counts = result.get_counts()
-        output += f"Tested {counts.function_count} function(s) across {counts.module_count} module(s)."
+        output += f"Tested {counts.get_total()} function(s) across {counts.module_count} module(s).\n"
+        output += f"Succeeded: {counts.functions_succeeded}, Failed: {counts.functions_failed}, Skipped: {counts.functions_skipped}"
         print(output)
 
     # return 0 if validation succeeds
