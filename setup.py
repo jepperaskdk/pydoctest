@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="pydoctest",
-    version="0.1.1",
+    version="REPLACED_BY_TRAVIS",
     author="Jeppe Rask",
     author_email="jepperaskdk@gmail.com",
     description="Test if doctype types match signatures",
