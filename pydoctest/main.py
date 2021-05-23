@@ -110,6 +110,7 @@ class PyDoctestService():
         for path in paths:
             include_path = os.path.join(self.config.working_directory, path)
             # Remove IGNORE_FILES until we know what to do with them
+            # TODO: Implement exclude_paths. Test with fnmatch so we don't have to glob all exclude files?
             include_file_paths.extend([p for p in glob.glob(include_path) if not any([p.endswith(k) for k in IGNORE_FILES])])
 
         return include_file_paths
