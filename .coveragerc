@@ -1,0 +1,17 @@
+[run]
+branch = True
+source = pydoctest
+omit =
+    */site-packages/*
+    */dist-packages/*
+
+ignore_errors = True
+
+
+[report]
+exclude_lines =
+    pragma: no cover
+    raise NotImplemented
+    def __str__
+    def __repr__
+    if __name__ == .__main__.:

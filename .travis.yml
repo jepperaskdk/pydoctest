@@ -1,5 +1,9 @@
 language: python
 python:
-  - "3.6"      # current default Python on Travis CI
+  - "3.6"
+install:
+  - pip install -r requirements.txt
 script:
-  - python3 -m unittest tests.test_docs
+  - pytest
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
