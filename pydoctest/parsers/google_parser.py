@@ -35,9 +35,17 @@ class GoogleParser(Parser):
         if 'Args:' not in doc:
             return []
         _, tail = doc.split("Args:")
-        arguments_string, _ = tail.split("Returns:")
+
+        if 'Returns:' in tail:
+            arguments_string, _ = tail.split('Returns:')
+        else:
+            arguments_string = tail
+
+        if 'Raises' in arguments_string:
+            arguments_string, _ = tail.split('Raises:')
 
         # TODO: Improve this. We might encounter more newlines.
+        # Google styleguide appears to suggest using tab-indents for separating arguments
         # Could perhaps regex for NAME (TYPE): DESCRIPTION
         args_strings = [arg.strip() for arg in arguments_string.strip().split("\n")]
 
@@ -51,9 +59,9 @@ class GoogleParser(Parser):
             parameters.append(Parameter(docname, located_type))
         return parameters
 
-    def get_return_type(self, doc: str, module_type: ModuleType) -> str:
+    def get_return_type(self, doc: str, module_type: ModuleType) -> Type:
         if 'Returns:' not in doc:
-            return "None"
+            return type(None)
 
         _, tail = doc.split("Returns:")
         if 'Raises:' in tail:
@@ -64,4 +72,5 @@ class GoogleParser(Parser):
             doctype, _ = returns.strip().split(":")
         else:
             doctype = returns.strip()
-        return doctype
+
+        return get_type_from_module(doctype, module_type)
