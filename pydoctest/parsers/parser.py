@@ -12,5 +12,5 @@ class Parser():
     def get_parameters(self, doc: str, module_type: ModuleType) -> List[Parameter]:
         raise NotImplementedError()
 
-    def get_return_type(self, doc: str, module_type: ModuleType) -> str:
+    def get_return_type(self, doc: str, module_type: ModuleType) -> Type:
         raise NotImplementedError()
