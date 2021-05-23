@@ -5,9 +5,6 @@ omit =
     */site-packages/*
     */dist-packages/*
 
-ignore_errors = True
-
-
 [report]
 exclude_lines =
     pragma: no cover
