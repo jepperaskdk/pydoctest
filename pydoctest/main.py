@@ -71,7 +71,7 @@ class PyDoctestService():
         # Validate top-level functions in module
         fns = self.get_global_functions(module_type)
         for fn in fns:
-            function_result = validate_function(fn, self.config)
+            function_result = validate_function(fn, self.config, module_type)
             if function_result.result == ResultType.FAILED:
                 result.result = ResultType.FAILED
             result.function_results.append(function_result)
@@ -79,15 +79,14 @@ class PyDoctestService():
         # Validate top-level classes in module
         classes = self.get_classes(module_type)
         for cl in classes:
-            result.class_results.append(validate_class(cl, self.config))
+            result.class_results.append(validate_class(cl, self.config, module_type))
 
         return result
 
     def get_global_functions(self, module: ModuleType) -> List[FunctionType]:
         fns = []
-        for name, obj in inspect.getmembers(module):
-            if inspect.isfunction(obj):
-                fns.append(obj)
+        for name, obj in inspect.getmembers(module, lambda x: inspect.isfunction(x) and x.__module__ == module.__name__):
+            fns.append(obj)
         return fns
 
     def get_classes(self, module: ModuleType) -> List[FunctionType]:

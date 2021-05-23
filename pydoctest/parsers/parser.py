@@ -1,15 +1,16 @@
-from typing import List
+from typing import List, Type
+from types import ModuleType
 
 
 class Parameter():
-    def __init__(self, name: str, type: str) -> None:
+    def __init__(self, name: str, t: Type) -> None:
         self.name = name
-        self.type = type
+        self.type = t
 
 
 class Parser():
-    def get_parameters(self, doc: str) -> List[Parameter]:
+    def get_parameters(self, doc: str, module_type: ModuleType) -> List[Parameter]:
         raise NotImplementedError()
 
-    def get_return_type(self, doc: str) -> str:
+    def get_return_type(self, doc: str, module_type: ModuleType) -> str:
         raise NotImplementedError()
