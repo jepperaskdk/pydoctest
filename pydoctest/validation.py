@@ -131,7 +131,7 @@ def type_to_string(t: Type) -> str:
     return sigtype
 
 
-def validate_function(fn: FunctionType, config: Configuration) -> FunctionValidationResult:
+def validate_function(fn: FunctionType, config: Configuration, module_type: ModuleType) -> FunctionValidationResult:
     log(f"Validating function: {fn.__module__}:{fn.__name__}")
     result = FunctionValidationResult(fn)
 
@@ -145,12 +145,12 @@ def validate_function(fn: FunctionType, config: Configuration) -> FunctionValida
         return result
 
     sig = inspect.signature(fn)
-    sig_parameters = [Parameter(name, type_to_string(proxy.annotation)) for name, proxy in sig.parameters.items() if name != "self"]
+    sig_parameters = [Parameter(name, proxy.annotation) for name, proxy in sig.parameters.items() if name != "self"]
     sig_return_type = type_to_string(sig.return_annotation)
 
     parser = config.get_parser()
-    doc_parameters = parser.get_parameters(doc)
-    doc_return_type = parser.get_return_type(doc)
+    doc_parameters = parser.get_parameters(doc, module_type)
+    doc_return_type = parser.get_return_type(doc, module_type)
 
     if sig_return_type.split(".")[-1] != doc_return_type:
         result.result = ResultType.FAILED
@@ -167,11 +167,7 @@ def validate_function(fn: FunctionType, config: Configuration) -> FunctionValida
             result.fail_reason = f"Argument name differ. Expected (from signature) '{sigparam.name}', but got (in docs) '{docparam.name}'"
             break
 
-        # TODO: Handle Optional better
-        if 'Union' in sigparam.type and 'Optional' in docparam.type:
-            # Replace Optional[type] with Union[type, NoneType]
-            docparam.type = f"Union[{docparam.type.replace('Optional[', '').replace(']', '')}, NoneType]"
-
+        # NOTE: Optional[str] == Union[str, None] # True
         if sigparam.type != docparam.type:
             result.result = ResultType.FAILED
             result.fail_reason = f"Argument type differ. Argument '{sigparam.name}' was expected (from signature) to have type '{sigparam.type}', but has (in docs) type '{docparam.type}'"
@@ -179,12 +175,12 @@ def validate_function(fn: FunctionType, config: Configuration) -> FunctionValida
     return result
 
 
-def validate_class(class_instance: Any, config: Configuration) -> ClassValidationResult:
+def validate_class(class_instance: Any, config: Configuration, module_type: ModuleType) -> ClassValidationResult:
     log(f"Validating class: {class_instance}")
     class_result = ClassValidationResult(class_instance.__name__)
     for name, item in class_instance.__dict__.items():
         if isinstance(item, types.FunctionType):
-            function_result = validate_function(item, config)
+            function_result = validate_function(item, config, module_type)
             if function_result.result == ResultType.FAILED:
                 class_result.result = ResultType.FAILED
             class_result.function_results.append(function_result)
