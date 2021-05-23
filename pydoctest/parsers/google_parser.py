@@ -1,37 +1,21 @@
-import re
-import inspect
-from pydoc import locate
 from types import ModuleType
-from typing import List, Tuple, Type, cast
+from typing import List, Type
+
 from pydoctest.parsers.parser import Parameter, Parser
-from collections import deque
-
-
-# TODO: Move this out of google_parser, and into a utilities module
-def get_type_from_module(type_string: str, module: ModuleType) -> Type:
-    # First let pydoc attempt to locate the type
-    located_type: Type = cast(Type, locate(type_string))
-    if located_type:
-        return located_type
-
-    # Try to eval it.
-    try:
-        # We pass the globals of module to eval, so lookups should work.
-        t = eval(type_string, vars(module))
-        return t
-    except NameError:
-        pass
-
-    # Search the module for the type. The above may be good enough.
-    for name, typ in inspect.getmembers(module):
-        if name == type_string:
-            return typ
-
-    raise Exception(f"Was unable to detect the type of: {type_string} from module: {module.__file__}.\nPlease file this as a bug: https://github.com/jepperaskdk/pydoctest/issues")
+from pydoctest.utilities import get_type_from_module
 
 
 class GoogleParser(Parser):
     def get_parameters(self, doc: str, module_type: ModuleType) -> List[Parameter]:
+        """Finds the function arguments as strings, and returns their types as Parameter instances.
+
+        Args:
+            doc (str): Function docstring.
+            module_type (ModuleType): The module the docstring was extracted from.
+
+        Returns:
+            List[Parameter]: The parameters parsed from the docstring.
+        """
         if 'Args:' not in doc:
             return []
         _, tail = doc.split("Args:")
@@ -60,17 +44,20 @@ class GoogleParser(Parser):
         return parameters
 
     def get_return_type(self, doc: str, module_type: ModuleType) -> Type:
+        """Finds the return-type as string and returns it.
+
+        Args:
+            doc (str): Function docstring.
+            module_type (ModuleType): The module the docstring was extracted from.
+
+        Returns:
+            Type: The return type parsed from the docs.
+        """
         if 'Returns:' not in doc:
             return type(None)
 
-        _, tail = doc.split("Returns:")
-        if 'Raises:' in tail:
-            returns, raises = tail.split("Raises:")
-        else:
-            returns = tail
-        if ':' in returns:
-            doctype, _ = returns.strip().split(":")
-        else:
-            doctype = returns.strip()
+        _, returns = doc.split("Returns:")
+
+        doctype, _ = returns.strip().split(":")
 
         return get_type_from_module(doctype, module_type)

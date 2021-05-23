@@ -4,6 +4,7 @@ import os
 import argparse
 import glob
 import inspect
+import traceback
 
 import importlib
 import importlib.util
@@ -11,14 +12,14 @@ from importlib.abc import Loader
 from importlib.machinery import ModuleSpec
 
 from types import FunctionType, ModuleType
-from typing import Any, ClassVar, List, Optional
+from typing import List, Optional, Type
 
 from pydoctest import logging
 from pydoctest.configuration import Configuration, Verbosity
 from pydoctest.reporters.reporter import Reporter
 from pydoctest.reporters.json_reporter import JSONReporter
 from pydoctest.reporters.text_reporter import TextReporter
-from pydoctest.validation import ClassValidationResult, FunctionValidationResult, ModuleValidationResult, ResultType, ValidationResult, validate_class, validate_function
+from pydoctest.validation import ModuleValidationResult, Result, ResultType, ValidationResult, validate_class, validate_function
 
 
 CONFIG_FILE_NAME = 'pydoctest.json'
@@ -31,6 +32,11 @@ REPORTERS = {
 
 class PyDoctestService():
     def __init__(self, config: Configuration) -> None:
+        """Instantiates a new Pydoctest-service.
+
+        Args:
+            config (Configuration): The configuration to use for testing.
+        """
         self.config = config
 
     def validate(self) -> ValidationResult:
@@ -51,9 +57,20 @@ class PyDoctestService():
                 result.result = ResultType.FAILED
             result.module_results.append(module_result)
 
+        if result.result == ResultType.NOT_RUN:
+            result.result = ResultType.OK
+
         return result
 
     def validate_module(self, module_path: str) -> ModuleValidationResult:
+        """Validates the module, given its path.
+
+        Args:
+            module_path (str): Path to a module.
+
+        Returns:
+            ModuleValidationResult: Result of validating the module.
+        """
         logging.log(f'Validating module: {module_path}')
         result = ModuleValidationResult(module_path)
 
@@ -79,18 +96,37 @@ class PyDoctestService():
         # Validate top-level classes in module
         classes = self.get_classes(module_type)
         for cl in classes:
-            result.class_results.append(validate_class(cl, self.config, module_type))
+            class_result = validate_class(cl, self.config, module_type)
+            if class_result.result == ResultType.FAILED:
+                result.result = ResultType.FAILED
+            result.class_results.append(class_result)
 
         return result
 
     def get_global_functions(self, module: ModuleType) -> List[FunctionType]:
+        """Gets the global functions of the module.
+
+        Args:
+            module (ModuleType): The module to extract global functions from.
+
+        Returns:
+            List[FunctionType]: A list of global functions in the module.
+        """
         fns = []
         for name, obj in inspect.getmembers(module, lambda x: inspect.isfunction(x) and x.__module__ == module.__name__):
             fns.append(obj)
         return fns
 
-    def get_classes(self, module: ModuleType) -> List[FunctionType]:
-        classes = []
+    def get_classes(self, module: ModuleType) -> List[Type]:
+        """Get classes defined in module.
+
+        Args:
+            module (ModuleType): The module to extract classes from.
+
+        Returns:
+            List[Type]: A list of classes defined in the module.
+        """
+        classes: List[type] = []
         # getmembers will also return imports etc. so we require classes to be part of this module
         for name, obj in inspect.getmembers(module, lambda x: inspect.isclass(x) and x.__module__ == module.__name__):
             if issubclass(obj, Enum):
@@ -100,6 +136,11 @@ class PyDoctestService():
         return classes
 
     def discover_modules(self) -> List[str]:
+        """Discovers modules using the configuration include/exclude paths.
+
+        Returns:
+            List[str]: A list of paths to modules to be validated.
+        """
         include_file_paths = []
 
         paths = self.config.include_paths
@@ -167,30 +208,35 @@ def main() -> None:
     parser.add_argument("--debug", help="Verbose logging", action='store_true')
     args = parser.parse_args()
 
-    if args.debug:
-        logging.set_verbose(True)
+    try:
+        if args.debug:
+            logging.set_verbose(True)
 
-    config = get_configuration(os.getcwd(), args.config)
-    reporter = get_reporter(args.reporter, config)
+        config = get_configuration(os.getcwd(), args.config)
+        reporter = get_reporter(args.reporter, config)
 
-    if args.verbosity:
-        config.verbosity = Verbosity(int(args.verbosity))
+        if args.verbosity:
+            config.verbosity = Verbosity(int(args.verbosity))
 
-    # Validates fields, e.g. if parser exists
-    config.validate()
+        # Check that parser exists before running.
+        config.get_parser()
 
-    ds = PyDoctestService(config)
-    result = ds.validate()
+        ds = PyDoctestService(config)
+        result = ds.validate()
 
-    if config.verbosity != Verbosity.QUIET:
-        output = reporter.get_output(result)
-        counts = result.get_counts()
-        output += f"Tested {counts.get_total()} function(s) across {counts.module_count} module(s).\n"
-        output += f"Succeeded: {counts.functions_succeeded}, Failed: {counts.functions_failed}, Skipped: {counts.functions_skipped}"
-        print(output)
+        if config.verbosity != Verbosity.QUIET:
+            output = reporter.get_output(result)
+            counts = result.get_counts()
+            output += f"Tested {counts.get_total()} function(s) across {counts.module_count} module(s).\n"
+            output += f"Succeeded: {counts.functions_succeeded}, Failed: {counts.functions_failed}, Skipped: {counts.functions_skipped}"
+            print(output)
 
-    # return 0 if validation succeeds
-    sys.exit(0 if result.result == ResultType.OK else 1)
+        if result.result != ResultType.OK:
+            sys.exit(1)
+    except Exception as e:
+        print(traceback.format_exc())
+        print(f"Error occurred: {str(e)}")
+        sys.exit(1)
 
 
 if __name__ == '__main__':

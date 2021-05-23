@@ -1,0 +1,6 @@
+{
+    "include_paths": [ "/path/to/module" ],
+    "parser": "parsername",
+    "exclude_paths": [ "/excludes/0", "excludes/1" ],
+    "fail_on_missing_docstring": true
+}
