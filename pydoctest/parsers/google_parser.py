@@ -51,9 +51,9 @@ class GoogleParser(Parser):
             parameters.append(Parameter(docname, located_type))
         return parameters
 
-    def get_return_type(self, doc: str, module_type: ModuleType) -> str:
+    def get_return_type(self, doc: str, module_type: ModuleType) -> Type:
         if 'Returns:' not in doc:
-            return "None"
+            return type(None)
 
         _, tail = doc.split("Returns:")
         if 'Raises:' in tail:
@@ -64,4 +64,5 @@ class GoogleParser(Parser):
             doctype, _ = returns.strip().split(":")
         else:
             doctype = returns.strip()
-        return doctype
+
+        return get_type_from_module(doctype, module_type)

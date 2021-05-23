@@ -37,7 +37,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test typing with mypy
       run: |
-        mypy
+        mypy --config-file mypy.ini
     - name: Test with pytest and coverage
       run: |
         coverage run -m pytest
