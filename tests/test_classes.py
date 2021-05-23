@@ -1,7 +1,7 @@
 import unittest
 
 
-class TestClass():
+class TestClass(unittest.TestCase):
     def empty_func(self) -> None:
         """Empty func
         """
@@ -21,15 +21,4 @@ class TestClass():
         Returns:
             int: [description]
         """
-        pass
-
-
-class TestDocs(unittest.TestCase):
-    def test_empty_func(self) -> None:
-        pass
-
-    def test_func_returns_none(self) -> None:
-        pass
-
-    def test_func_returns_int(self) -> None:
         pass

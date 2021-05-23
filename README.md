@@ -1,7 +1,5 @@
 pydoctest: docstring signature verification
 =======================================
-[![Build Status](https://www.travis-ci.com/jepperaskdk/pydoctest.svg?branch=main)](https://www.travis-ci.com/jepperaskdk/pydoctest)
-
 File issues here: [Issues tracker](https://github.com/jepperaskdk/pydoctest/issues)
 
 Motivation
