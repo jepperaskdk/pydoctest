@@ -4,6 +4,7 @@ source = pydoctest
 omit =
     */site-packages/*
     */dist-packages/*
+    pydoctest/logging.py
 
 [report]
 exclude_lines =

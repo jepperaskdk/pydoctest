@@ -4,6 +4,7 @@ import os
 import argparse
 import glob
 import inspect
+import traceback
 
 import importlib
 import importlib.util
@@ -18,7 +19,7 @@ from pydoctest.configuration import Configuration, Verbosity
 from pydoctest.reporters.reporter import Reporter
 from pydoctest.reporters.json_reporter import JSONReporter
 from pydoctest.reporters.text_reporter import TextReporter
-from pydoctest.validation import ModuleValidationResult, ResultType, ValidationResult, validate_class, validate_function
+from pydoctest.validation import ModuleValidationResult, Result, ResultType, ValidationResult, validate_class, validate_function
 
 
 CONFIG_FILE_NAME = 'pydoctest.json'
@@ -56,6 +57,9 @@ class PyDoctestService():
                 result.result = ResultType.FAILED
             result.module_results.append(module_result)
 
+        if result.result == ResultType.NOT_RUN:
+            result.result = ResultType.OK
+
         return result
 
     def validate_module(self, module_path: str) -> ModuleValidationResult:
@@ -92,7 +96,10 @@ class PyDoctestService():
         # Validate top-level classes in module
         classes = self.get_classes(module_type)
         for cl in classes:
-            result.class_results.append(validate_class(cl, self.config, module_type))
+            class_result = validate_class(cl, self.config, module_type)
+            if class_result.result == ResultType.FAILED:
+                result.result = ResultType.FAILED
+            result.class_results.append(class_result)
 
         return result
 
@@ -190,11 +197,8 @@ def get_reporter(reporter: Optional[str], config: Configuration) -> Reporter:
         sys.exit(1)
 
 
-def main() -> bool:
+def main() -> None:
     """Main function invoked when running script.
-
-    Returns:
-        bool: If validation succeeded
     """
     # TODO: Could allow arguments directly to pydoctest for overriding .json config arguments
     parser = argparse.ArgumentParser()
@@ -204,36 +208,36 @@ def main() -> bool:
     parser.add_argument("--debug", help="Verbose logging", action='store_true')
     args = parser.parse_args()
 
-    if args.debug:
-        logging.set_verbose(True)
+    try:
+        if args.debug:
+            logging.set_verbose(True)
 
-    config = get_configuration(os.getcwd(), args.config)
-    reporter = get_reporter(args.reporter, config)
+        config = get_configuration(os.getcwd(), args.config)
+        reporter = get_reporter(args.reporter, config)
 
-    if args.verbosity:
-        config.verbosity = Verbosity(int(args.verbosity))
+        if args.verbosity:
+            config.verbosity = Verbosity(int(args.verbosity))
 
-    # Check that parser exists before running.
-    config.get_parser()
+        # Check that parser exists before running.
+        config.get_parser()
 
-    ds = PyDoctestService(config)
-    result = ds.validate()
+        ds = PyDoctestService(config)
+        result = ds.validate()
 
-    if config.verbosity != Verbosity.QUIET:
-        output = reporter.get_output(result)
-        counts = result.get_counts()
-        output += f"Tested {counts.get_total()} function(s) across {counts.module_count} module(s).\n"
-        output += f"Succeeded: {counts.functions_succeeded}, Failed: {counts.functions_failed}, Skipped: {counts.functions_skipped}"
-        print(output)
+        if config.verbosity != Verbosity.QUIET:
+            output = reporter.get_output(result)
+            counts = result.get_counts()
+            output += f"Tested {counts.get_total()} function(s) across {counts.module_count} module(s).\n"
+            output += f"Succeeded: {counts.functions_succeeded}, Failed: {counts.functions_failed}, Skipped: {counts.functions_skipped}"
+            print(output)
 
-    # return 0 if validation succeeds
-    return result.result == ResultType.OK
+        if result.result != ResultType.OK:
+            sys.exit(1)
+    except Exception as e:
+        print(traceback.format_exc())
+        print(f"Error occurred: {str(e)}")
+        sys.exit(1)
 
 
 if __name__ == '__main__':
-    try:
-        success = main()
-        if not success:
-            sys.exit(1)
-    except Exception as e:
-        print(f"Error occurred: {str(e)}")
+    main()

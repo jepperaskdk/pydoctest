@@ -53,14 +53,14 @@ class TextReporter(Reporter):
         """
         if result.result == ResultType.OK:
             if self.config.verbosity == Verbosity.SHOW_ALL:
-                return f"Function: {result.function.__module__}:{result.function.__name__} {SUCCESS}\n"
+                return f"Function: {result.function_name} {SUCCESS}\n"
             return ""
 
         if result.result == ResultType.FAILED:
-            return f"Function: {result.function} {FAILED} | {result.fail_reason}\n"
+            return f"Function: {result.function_name} {FAILED} | {result.fail_reason}\n"
 
         if result.result == ResultType.NO_DOC and self.config.fail_on_missing_docstring:
-            return f"Function: {result.function.__name__} is missing a docstring"
+            return f"Function: {result.function_name} is missing a docstring\n"
 
         return ""
 

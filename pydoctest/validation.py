@@ -1,10 +1,10 @@
-from enum import Enum
+from enum import IntEnum
 import inspect
 import types
 from pydoctest.parsers.parser import Parameter
 
 from types import FunctionType, ModuleType
-from typing import Any, Dict, List, Type
+from typing import Any, Dict, List, Optional, Type
 
 from pydoctest.logging import log
 from pydoctest.configuration import Configuration
@@ -28,7 +28,7 @@ class ValidationCounts():
         return self.functions_succeeded + self.functions_failed + self.functions_skipped
 
 
-class ResultType(Enum):
+class ResultType(IntEnum):
     NOT_RUN = 0
     OK = 1
     FAILED = 2
@@ -55,14 +55,14 @@ class Result():
 
 
 class FunctionValidationResult(Result):
-    def __init__(self, fn: FunctionType) -> None:
+    def __init__(self, function_name: str) -> None:
         """Result class for storing results of testing functions.
 
         Args:
-            fn (FunctionType): A reference to the function that was tested.
+            function_name (str): A reference to the function that was tested.
         """
         super().__init__()
-        self.function = fn
+        self.function_name = function_name
 
     def to_dict(self) -> Dict[str, Any]:
         """Serializes this class to dict, which is useful for the JSONReporter.
@@ -72,7 +72,7 @@ class FunctionValidationResult(Result):
         """
         return {
             **super().to_dict(),
-            'function_name': self.function.__name__
+            'function_name': self.function_name
         }
 
 
@@ -189,8 +189,8 @@ def validate_function(fn: FunctionType, config: Configuration, module_type: Modu
     Returns:
         FunctionValidationResult: The result of validating this function.
     """
-    log(f"Validating function: {fn.__module__}:{fn.__name__}")
-    result = FunctionValidationResult(fn)
+    log(f"Validating function: {fn}")
+    result = FunctionValidationResult(fn.__name__)
 
     doc = inspect.getdoc(fn)
     if not doc:
@@ -222,13 +222,13 @@ def validate_function(fn: FunctionType, config: Configuration, module_type: Modu
         if sigparam.name != docparam.name:
             result.result = ResultType.FAILED
             result.fail_reason = f"Argument name differ. Expected (from signature) '{sigparam.name}', but got (in docs) '{docparam.name}'"
-            break
+            return result
 
         # NOTE: Optional[str] == Union[str, None] # True
         if sigparam.type != docparam.type:
             result.result = ResultType.FAILED
             result.fail_reason = f"Argument type differ. Argument '{sigparam.name}' was expected (from signature) to have type '{sigparam.type}', but has (in docs) type '{docparam.type}'"
-            break
+            return result
 
     result.result = ResultType.OK
     return result
