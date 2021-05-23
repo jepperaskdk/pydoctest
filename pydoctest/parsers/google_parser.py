@@ -56,14 +56,8 @@ class GoogleParser(Parser):
         if 'Returns:' not in doc:
             return type(None)
 
-        _, tail = doc.split("Returns:")
-        if 'Raises:' in tail:
-            returns, raises = tail.split("Raises:")
-        else:
-            returns = tail
-        if ':' in returns:
-            doctype, _ = returns.strip().split(":")
-        else:
-            doctype = returns.strip()
+        _, returns = doc.split("Returns:")
+
+        doctype, _ = returns.strip().split(":")
 
         return get_type_from_module(doctype, module_type)

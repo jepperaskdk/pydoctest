@@ -11,7 +11,7 @@ from importlib.abc import Loader
 from importlib.machinery import ModuleSpec
 
 from types import FunctionType, ModuleType
-from typing import Any, List, Optional, Type
+from typing import List, Optional, Type
 
 from pydoctest import logging
 from pydoctest.configuration import Configuration, Verbosity
@@ -190,8 +190,11 @@ def get_reporter(reporter: Optional[str], config: Configuration) -> Reporter:
         sys.exit(1)
 
 
-def main() -> None:
+def main() -> bool:
     """Main function invoked when running script.
+
+    Returns:
+        bool: If validation succeeded
     """
     # TODO: Could allow arguments directly to pydoctest for overriding .json config arguments
     parser = argparse.ArgumentParser()
@@ -224,8 +227,13 @@ def main() -> None:
         print(output)
 
     # return 0 if validation succeeds
-    sys.exit(0 if result.result == ResultType.OK else 1)
+    return result.result == ResultType.OK
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        success = main()
+        if not success:
+            sys.exit(1)
+    except Exception as e:
+        print(f"Error occurred: {str(e)}")

@@ -80,14 +80,11 @@ class Configuration():
             if hasattr(obj, key):
                 setattr(obj, key, value)
             else:
-                print(f'Unknown configuration parameter: {key}')
-                sys.exit(1)
+                raise Exception(f'Unknown configuration parameter: {key}')
         return obj
 
     def get_parser(self) -> Parser:
         """Checks if the desired Parser exists and returns it.
-
-        TODO: Currently we sys.exit directly. Should we handle it differently?
 
         Returns:
             Parser: A supported Parser.
@@ -95,5 +92,4 @@ class Configuration():
         if self.parser in PARSERS.keys():
             return PARSERS[self.parser]()
         else:
-            print(f"Unknown parser: {self.parser}. Please use one of the following: {', '.join(PARSERS.keys())}")
-            sys.exit(1)
+            raise Exception(f"Unknown parser: {self.parser}. Please use one of the following: {', '.join(PARSERS.keys())}")
