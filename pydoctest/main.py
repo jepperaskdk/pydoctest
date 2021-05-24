@@ -205,6 +205,9 @@ def get_reporter(config: Configuration, reporter: Optional[str] = None) -> Repor
 def main() -> None:  # pragma: no cover
     """Main function invoked when running script.
     """
+    # Imports will not work, unless we pretend this script is executed in the current directory.
+    sys.path.insert(0, '')
+
     # TODO: Could allow arguments directly to pydoctest for overriding .json config arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", help="Path to config JSON file, e.g. pydoctest.json")
