@@ -179,13 +179,16 @@ def get_configuration(root_dir: str, config_path: Optional[str] = None) -> Confi
     return Configuration.get_configuration_from_path(path)
 
 
-def get_reporter(reporter: Optional[str], config: Configuration) -> Reporter:
+def get_reporter(config: Configuration, reporter: Optional[str] = None) -> Reporter:
     """We offer to output results using either TextReporter and JSONReporter.
     This list of reporters can be extended with more reporters as they simply implement a get_output function.
 
     Args:
-        reporter (Optional[str]): Desired reporter [text | json]
         config (Configuration): The configuration currently used.
+        reporter (Optional[str]): Desired reporter [text | json]
+
+    Raises:
+        Exception: Raised if desired reporter does not exist.
 
     Returns:
         Reporter: Reporter if provided, otherwise text.
@@ -196,11 +199,10 @@ def get_reporter(reporter: Optional[str], config: Configuration) -> Reporter:
     if reporter in REPORTERS.keys():
         return REPORTERS[reporter](config)
     else:
-        print(f"Unknown reporter: {reporter}. Please use one of the following: {', '.join(REPORTERS.keys())}")
-        sys.exit(1)
+        raise Exception(f"Unknown reporter: {reporter}. Please use one of the following: {', '.join(REPORTERS.keys())}")
 
 
-def main() -> None:
+def main() -> None:  # pragma: no cover
     """Main function invoked when running script.
     """
     # TODO: Could allow arguments directly to pydoctest for overriding .json config arguments
@@ -216,7 +218,7 @@ def main() -> None:
             logging.set_verbose(True)
 
         config = get_configuration(os.getcwd(), args.config)
-        reporter = get_reporter(args.reporter, config)
+        reporter = get_reporter(config, args.reporter)
 
         if args.verbosity:
             config.verbosity = Verbosity(int(args.verbosity))
@@ -227,12 +229,14 @@ def main() -> None:
         ds = PyDoctestService(config)
         result = ds.validate()
 
-        if config.verbosity != Verbosity.QUIET:
-            output = reporter.get_output(result)
+        output = reporter.get_output(result)
+
+        if isinstance(reporter, TextReporter) and config.verbosity != Verbosity.QUIET:
             counts = result.get_counts()
             output += f"Tested {counts.get_total()} function(s) across {counts.module_count} module(s).\n"
             output += f"Succeeded: {counts.functions_succeeded}, Failed: {counts.functions_failed}, Skipped: {counts.functions_skipped}"
-            print(output)
+
+        print(output)
 
         if result.result != ResultType.OK:
             sys.exit(1)

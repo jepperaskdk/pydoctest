@@ -1,6 +1,10 @@
+import pytest
+
+from pydoctest.reporters.text_reporter import TextReporter
+from pydoctest.reporters.json_reporter import JSONReporter
 from pydoctest.configuration import Configuration
 from pydoctest.validation import ResultType, validate_class, validate_function
-from pydoctest.main import PyDoctestService, get_configuration
+from pydoctest.main import PyDoctestService, get_configuration, get_reporter
 
 
 class TestMain():
@@ -34,3 +38,21 @@ class TestGetConfiguration():
 
         # Default configs have empty include_paths
         assert config.include_paths == []
+
+
+class TestGetReporter():
+    def test_get_default_reporter(self) -> None:
+        config = Configuration.get_default_configuration()
+        reporter = get_reporter(config=config)
+        assert isinstance(reporter, TextReporter)
+
+    def test_get_reporter(self) -> None:
+        config = Configuration.get_default_configuration()
+        reporter = get_reporter(config=config, reporter="json")
+        assert isinstance(reporter, JSONReporter)
+
+    def test_get_non_existing_reporter(self) -> None:
+        config = Configuration.get_default_configuration()
+        with pytest.raises(Exception) as exn_info:
+            reporter = get_reporter(config=config, reporter="doesnotexist")
+        assert 'Unknown reporter' in str(exn_info.value)
