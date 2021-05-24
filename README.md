@@ -26,6 +26,8 @@ Usage
 Navigate to your project location, and execute pydoctest
 
     $ pydoctest
+    
+With no pydoctest.json configuration file, it will by default validate all \*.py files in the current directory. See the configuration section for options.
 
 Output
 ----------
