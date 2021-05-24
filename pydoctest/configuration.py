@@ -43,18 +43,27 @@ class Configuration():
         self.verbosity = Verbosity.SHOW_FAILED
 
     @staticmethod
-    def get_default_configuration() -> 'Configuration':
+    def get_default_configuration(root_dir: Optional[str] = None) -> 'Configuration':
         """Returns a configuration with default values.
+
+        Args:
+            root_dir (Optional[str]): Directory to use as root.
 
         Returns:
             'Configuration': A default configuration.
         """
         log("Using default configuration")
-        return Configuration()
+        config = Configuration()
+        if root_dir:
+            config.working_directory = root_dir
+        return config
 
     @staticmethod
     def get_configuration_from_path(config_path: str) -> 'Configuration':
         """Returns a configuration, loaded from the pydoctest.json provided.
+
+        Args:
+            config_path (str): The path to a config file.
 
         Returns:
             'Configuration': A configuration loaded with values from provided path.
@@ -71,6 +80,9 @@ class Configuration():
     @staticmethod
     def from_dict(x: Dict[str, Any]) -> 'Configuration':
         """Given a dictionary, returns a Configuration object.
+
+        Args:
+            x (Dict[str, Any]): The dictionary to load the configuration values from.
 
         Returns:
             'Configuration': A configuration loaded with values from the dictionary.

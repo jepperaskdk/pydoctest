@@ -1,17 +1,23 @@
-from typing import Optional, Type
+import inspect
+from types import FunctionType
+from typing import Optional, Type, cast
 from pydoctest.validation import ClassValidationResult, FunctionValidationResult, ModuleValidationResult, ResultType, ValidationResult
 from pydoctest.configuration import Configuration, Verbosity
 from pydoctest.reporters.text_reporter import TextReporter
 
 
 def get_result_object(result_type: ResultType, fail_reason: Optional[str] = None) -> ValidationResult:
-    def fn() -> None:
+    def FunctionName() -> None:
         pass
+
+    def MethodName() -> None:
+        pass
+
     result = ValidationResult()
     result.result = result_type
     result.module_results = [ModuleValidationResult("ModulePath")]
     result.module_results[0].result = result_type
-    result.module_results[0].function_results = [FunctionValidationResult("FunctionName")]
+    result.module_results[0].function_results = [FunctionValidationResult(cast(FunctionType, FunctionName))]
     result.module_results[0].function_results[0].result = result_type
     if fail_reason:
         result.module_results[0].function_results[0].fail_reason = fail_reason
@@ -21,7 +27,7 @@ def get_result_object(result_type: ResultType, fail_reason: Optional[str] = None
     if fail_reason:
         result.module_results[0].class_results[0].fail_reason = fail_reason
 
-    result.module_results[0].class_results[0].function_results = [FunctionValidationResult("MethodName")]
+    result.module_results[0].class_results[0].function_results = [FunctionValidationResult(cast(FunctionType, MethodName))]
     result.module_results[0].class_results[0].function_results[0].result = result_type
     if fail_reason:
         result.module_results[0].class_results[0].function_results[0].fail_reason = fail_reason
@@ -46,7 +52,13 @@ class TestTextReporter():
 
         result = get_result_object(ResultType.OK)
         output = reporter.get_output(result)
-        assert output == 'Function: FunctionName OK\nFunction: MethodName OK\n'
+        messages = [m for m in output.split("Function:") if m]
+
+        assert 'FunctionName' in messages[0]
+        assert 'OK' in messages[0]
+
+        assert 'MethodName' in messages[1]
+        assert 'OK' in messages[1]
 
     def test_text_reporter_failed(self) -> None:
         config = Configuration.get_default_configuration()
@@ -55,7 +67,13 @@ class TestTextReporter():
 
         result = get_result_object(ResultType.FAILED, "FAIL REASON")
         output = reporter.get_output(result)
-        assert output == 'Function: FunctionName FAIL | FAIL REASON\nFunction: MethodName FAIL | FAIL REASON\n'
+        messages = [m for m in output.split("Function:") if m]
+
+        assert 'FunctionName' in messages[0]
+        assert 'FAIL | FAIL REASON' in messages[0]
+
+        assert 'MethodName' in messages[1]
+        assert 'FAIL | FAIL REASON' in messages[1]
 
     def test_text_reporter_no_doc_no_fail(self) -> None:
         config = Configuration.get_default_configuration()
@@ -75,4 +93,10 @@ class TestTextReporter():
 
         result = get_result_object(ResultType.NO_DOC)
         output = reporter.get_output(result)
-        assert output == 'Function: FunctionName is missing a docstring\nFunction: MethodName is missing a docstring\n'
+
+        messages = [m for m in output.split("Function:") if m]
+        assert 'FunctionName' in messages[0]
+        assert 'is missing a docstring' in messages[0]
+
+        assert 'MethodName' in messages[1]
+        assert 'is missing a docstring' in messages[1]

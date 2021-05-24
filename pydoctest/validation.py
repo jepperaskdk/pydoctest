@@ -55,14 +55,14 @@ class Result():
 
 
 class FunctionValidationResult(Result):
-    def __init__(self, function_name: str) -> None:
+    def __init__(self, function: FunctionType) -> None:
         """Result class for storing results of testing functions.
 
         Args:
-            function_name (str): A reference to the function that was tested.
+            function (FunctionType): A reference to the function that was tested.
         """
         super().__init__()
-        self.function_name = function_name
+        self.function = function
 
     def to_dict(self) -> Dict[str, Any]:
         """Serializes this class to dict, which is useful for the JSONReporter.
@@ -72,7 +72,7 @@ class FunctionValidationResult(Result):
         """
         return {
             **super().to_dict(),
-            'function_name': self.function_name
+            'function': str(self.function)
         }
 
 
@@ -190,7 +190,7 @@ def validate_function(fn: FunctionType, config: Configuration, module_type: Modu
         FunctionValidationResult: The result of validating this function.
     """
     log(f"Validating function: {fn}")
-    result = FunctionValidationResult(fn.__name__)
+    result = FunctionValidationResult(fn)
 
     doc = inspect.getdoc(fn)
     if not doc:
@@ -217,6 +217,7 @@ def validate_function(fn: FunctionType, config: Configuration, module_type: Modu
     if len(sig_parameters) != len(doc_parameters):
         result.result = ResultType.FAILED
         result.fail_reason = f"Number of arguments differ. Expected (from signature) {len(sig_parameters)} arguments, but found (in docs) {len(doc_parameters)}."
+        return result
 
     for sigparam, docparam in zip(sig_parameters, doc_parameters):
         if sigparam.name != docparam.name:
