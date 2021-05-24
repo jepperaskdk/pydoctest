@@ -6,7 +6,22 @@ from typing import Type, cast
 from pydoc import locate
 
 
-def get_type_from_module(type_string: str, module: ModuleType) -> Type:
+class LocateResult():
+    """Small DTO for storing type and method used for finding it.
+    Makes testing easier.
+    """
+    def __init__(self, t: Type, method: str) -> None:
+        """Instantiates a new LocateResult
+
+        Args:
+            t (Type): The type returned.
+            method (str): The method used to locate it.
+        """
+        self.type = t
+        self.method = method
+
+
+def get_type_from_module(type_string: str, module: ModuleType) -> LocateResult:
     """Attempts to return the type, given the type_string and module it is extracted from.
 
     Args:
@@ -17,38 +32,32 @@ def get_type_from_module(type_string: str, module: ModuleType) -> Type:
         Exception: If unable to find the type, we throw an Exception.
 
     Returns:
-        Type: The type when found.
+        LocateResult: A LocateResult wrapping the type when found.
     """
     # First let pydoc attempt to locate the type
     located_type: Type = cast(Type, locate(type_string))
     if located_type:
-        return located_type
+        return LocateResult(located_type, 'locate')
 
     # Try to eval it.
     try:
         # We pass the globals of module to eval, so lookups should work.
         t = eval(type_string, vars(module))
-        return t
+        return LocateResult(t, 'eval')
     except NameError:
         pass
 
-    # Search the module for the type. The above may be good enough.
-    for name, typ in inspect.getmembers(module):
-        if name == type_string:
-            return typ
-
     # Search imported modules in module
     # Inspired by this: https://stackoverflow.com/a/11781721/3717691
-    # TODO: Perhaps we should limit the search depth here?
+    # TODO: We limit the search by count, not by depth. Should it be configurable, e.g. when large codebases?
+    SEARCHES_LEFT = 1_000
     q = deque([module])
-    while q:
+    while q and SEARCHES_LEFT > 0:
         m = q.popleft()
         try:
             t = eval(type_string, vars(m))
-            return t
+            return LocateResult(t, 'deque')
         except NameError:
-            pass
-        except TypeError:
             pass
 
         for name, item in inspect.getmembers(m):
@@ -58,6 +67,7 @@ def get_type_from_module(type_string: str, module: ModuleType) -> Type:
                 mod = inspect.getmodule(item)
                 if mod:
                     q.append(mod)
+        SEARCHES_LEFT -= 1
 
     # TODO: We should make this configurable in config
-    raise Exception(f"Was unable to detect the type of: {type_string} from module: {module.__file__}.\nPlease file this as a bug: https://github.com/jepperaskdk/pydoctest/issues")
+    raise Exception(f"Was unable to detect the type of: {type_string} from module: {module.__file__}.\nIf you believe this is a bug, please file it here: https://github.com/jepperaskdk/pydoctest/issues")

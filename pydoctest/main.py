@@ -79,7 +79,7 @@ class PyDoctestService():
 
         if module_spec is None or not isinstance(module_spec.loader, Loader):
             result.result = ResultType.NOT_RUN
-            result.fail_reason = "Failed to load spec from file location"
+            result.fail_reason = f"Failed to load spec from file location: {module_path}"
             return result
 
         module_type = importlib.util.module_from_spec(module_spec)
@@ -171,9 +171,12 @@ def get_configuration(root_dir: str, config_path: Optional[str] = None) -> Confi
 
     config_paths = [p for p in os.listdir(root_dir) if p == CONFIG_FILE_NAME]
     if len(config_paths) == 0:
-        return Configuration.get_default_configuration()
+        # TODO: Is the interface better by returning Optional[Configuration] (None here)?
+        # Then it is clearer that a config was not found.
+        return Configuration.get_default_configuration(root_dir)
 
-    return Configuration.get_configuration_from_path(config_paths[0])
+    path = os.path.join(root_dir, config_paths[0])
+    return Configuration.get_configuration_from_path(path)
 
 
 def get_reporter(reporter: Optional[str], config: Configuration) -> Reporter:

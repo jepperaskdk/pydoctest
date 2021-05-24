@@ -40,7 +40,7 @@ class GoogleParser(Parser):
             doctype = doctype.replace(')', '')
             doctype = doctype.replace(', optional', '')  # TODO: How do we deal with Optional[int] being (Optional[int], optional)?
             located_type = get_type_from_module(doctype, module_type)
-            parameters.append(Parameter(docname, located_type))
+            parameters.append(Parameter(docname, located_type.type))
         return parameters
 
     def get_return_type(self, doc: str, module_type: ModuleType) -> Type:
@@ -60,4 +60,4 @@ class GoogleParser(Parser):
 
         doctype, _ = returns.strip().split(":")
 
-        return get_type_from_module(doctype, module_type)
+        return get_type_from_module(doctype, module_type).type
