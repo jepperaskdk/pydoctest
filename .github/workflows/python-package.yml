@@ -38,6 +38,9 @@ jobs:
     - name: Test typing with mypy
       run: |
         mypy --config-file mypy.ini
+    - name: Test docstrings with pydoctest
+      run: |
+        pydoctest
     - name: Test with pytest and coverage
       run: |
         coverage run -m pytest
