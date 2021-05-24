@@ -22,5 +22,6 @@ setuptools.setup(
             'pydoctest=pydoctest.main:main'
         ]
     },
+    license_files=('LICENSE',),
     python_requires=">=3.6",
 )
