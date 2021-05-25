@@ -1,13 +1,13 @@
 from enum import IntEnum
 import inspect
 import types
-from pydoctest.parsers.parser import Parameter, ParseException
 
 from types import FunctionType, ModuleType
 from typing import Any, Dict, List, Optional, Type
 
 from pydoctest.logging import log
 from pydoctest.configuration import Configuration
+from pydoctest.parsers.parser import Parameter, ParseException
 
 
 class ValidationCounts():

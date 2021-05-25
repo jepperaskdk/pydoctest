@@ -14,8 +14,8 @@ from importlib.machinery import ModuleSpec
 from types import FunctionType, ModuleType
 from typing import List, Optional, Type
 
-from pydoctest.version import __version__
 from pydoctest import logging
+from pydoctest.version import VERSION
 from pydoctest.configuration import Configuration, Verbosity
 from pydoctest.reporters.reporter import Reporter
 from pydoctest.reporters.json_reporter import JSONReporter
@@ -222,7 +222,7 @@ def main() -> None:  # pragma: no cover
 
     try:
         if args.version:
-            print(__version__)
+            print(VERSION)
             sys.exit(0)
 
         if args.debug:
@@ -231,7 +231,7 @@ def main() -> None:  # pragma: no cover
         config = get_configuration(os.getcwd(), args.config)
 
         # Imports will not work, unless we pretend this script is executed in the current directory.
-        sys.path.insert(0, config.working_directory)
+        sys.path.insert(0, '')
 
         reporter = get_reporter(config, args.reporter)
 

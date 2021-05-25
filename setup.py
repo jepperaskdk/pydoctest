@@ -1,6 +1,8 @@
 import setuptools
+import sys
+import os
 
-from pydoctest.version import __version__ as version
+from pydoctest.version import VERSION
 
 
 with open("README.md", "r", encoding="utf-8") as fh:
@@ -8,7 +10,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="pydoctest",
-    version=version,
+    version=VERSION,
     author="Jeppe Rask",
     author_email="jepperaskdk@gmail.com",
     description="Test if doctype types match signatures",
