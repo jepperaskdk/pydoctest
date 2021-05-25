@@ -2,10 +2,6 @@ from typing import List, Type
 from types import ModuleType
 
 
-class ParseException(Exception):
-    pass
-
-
 class Parameter():
     def __init__(self, name: str, t: Type) -> None:
         """Instantiates a function parameter.

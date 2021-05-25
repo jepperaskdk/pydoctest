@@ -7,7 +7,8 @@ from typing import Any, Dict, List, Optional, Type
 
 from pydoctest.logging import log
 from pydoctest.configuration import Configuration
-from pydoctest.parsers.parser import Parameter, ParseException
+from pydoctest.parsers.parser import Parameter
+from pydoctest.exceptions import ParseException
 
 
 class ValidationCounts():

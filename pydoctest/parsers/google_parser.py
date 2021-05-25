@@ -1,8 +1,9 @@
 from types import ModuleType
 from typing import List, Type
 
-from pydoctest.parsers.parser import Parameter, ParseException, Parser
+from pydoctest.parsers.parser import Parameter, Parser
 from pydoctest.utilities import get_type_from_module
+from pydoctest.exceptions import ParseException
 
 
 class GoogleParser(Parser):
