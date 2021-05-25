@@ -1,7 +1,7 @@
 from enum import IntEnum
 import inspect
 import types
-from pydoctest.parsers.parser import Parameter
+from pydoctest.parsers.parser import Parameter, ParseException
 
 from types import FunctionType, ModuleType
 from typing import Any, Dict, List, Optional, Type
@@ -206,8 +206,13 @@ def validate_function(fn: FunctionType, config: Configuration, module_type: Modu
     sig_return_type = type(None) if sig.return_annotation is None else sig.return_annotation
 
     parser = config.get_parser()
-    doc_parameters = parser.get_parameters(doc, module_type)
-    doc_return_type = parser.get_return_type(doc, module_type)
+    try:
+        doc_parameters = parser.get_parameters(doc, module_type)
+        doc_return_type = parser.get_return_type(doc, module_type)
+    except ParseException as e:
+        result.result = ResultType.FAILED
+        result.fail_reason = f"Unable to parse doctstring: {str(e)}"
+        return result
 
     if sig_return_type != doc_return_type:
         result.result = ResultType.FAILED
@@ -251,7 +256,9 @@ def validate_class(class_instance: Any, config: Configuration, module_type: Modu
 
     # for name, item in class_instance.__dict__.items():
     for name, item in inspect.getmembers(class_instance):
-        if inspect.isfunction(item):
+        if inspect.isfunction(item) and item.__module__ == module_type.__name__:
+            if name not in class_instance.__dict__ or item != class_instance.__dict__[name]:
+                continue
             function_result = validate_function(item, config, module_type)
             if function_result.result == ResultType.FAILED:
                 class_result.result = ResultType.FAILED

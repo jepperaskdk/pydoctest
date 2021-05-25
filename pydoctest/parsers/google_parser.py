@@ -1,7 +1,7 @@
 from types import ModuleType
 from typing import List, Type
 
-from pydoctest.parsers.parser import Parameter, Parser
+from pydoctest.parsers.parser import Parameter, ParseException, Parser
 from pydoctest.utilities import get_type_from_module
 
 
@@ -35,12 +35,15 @@ class GoogleParser(Parser):
 
         parameters = []
         for arg_string in args_strings:
-            docname, tail = [x.strip() for x in arg_string.split('(')]
-            doctype, tail = tail.split(':')
-            doctype = doctype.replace(')', '')
-            doctype = doctype.replace(', optional', '')  # TODO: How do we deal with Optional[int] being (Optional[int], optional)?
-            located_type = get_type_from_module(doctype, module_type)
-            parameters.append(Parameter(docname, located_type.type))
+            try:
+                docname, tail = [x.strip() for x in arg_string.split('(')]
+                doctype, tail = tail.split(':')
+                doctype = doctype.replace(')', '')
+                doctype = doctype.replace(', optional', '')  # TODO: How do we deal with Optional[int] being (Optional[int], optional)?
+                located_type = get_type_from_module(doctype, module_type)
+                parameters.append(Parameter(docname, located_type.type))
+            except ValueError:
+                raise ParseException(arg_string)
         return parameters
 
     def get_return_type(self, doc: str, module_type: ModuleType) -> Type:

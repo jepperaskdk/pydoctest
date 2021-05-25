@@ -14,6 +14,7 @@ from importlib.machinery import ModuleSpec
 from types import FunctionType, ModuleType
 from typing import List, Optional, Type
 
+from pydoctest.version import __version__
 from pydoctest import logging
 from pydoctest.configuration import Configuration, Verbosity
 from pydoctest.reporters.reporter import Reporter
@@ -82,8 +83,13 @@ class PyDoctestService():
             result.fail_reason = f"Failed to load spec from file location: {module_path}"
             return result
 
-        module_type = importlib.util.module_from_spec(module_spec)
-        module_spec.loader.exec_module(module_type)
+        try:
+            module_type = importlib.util.module_from_spec(module_spec)
+            module_spec.loader.exec_module(module_type)
+        except ModuleNotFoundError as e:
+            result.result = ResultType.FAILED
+            result.fail_reason = f"Failed to load module: {module_path}"
+            return result
 
         # Validate top-level functions in module
         fns = self.get_global_functions(module_type)
@@ -205,22 +211,28 @@ def get_reporter(config: Configuration, reporter: Optional[str] = None) -> Repor
 def main() -> None:  # pragma: no cover
     """Main function invoked when running script.
     """
-    # Imports will not work, unless we pretend this script is executed in the current directory.
-    sys.path.insert(0, '')
-
     # TODO: Could allow arguments directly to pydoctest for overriding .json config arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", help="Path to config JSON file, e.g. pydoctest.json")
     parser.add_argument("--reporter", help="Reporter to use, either 'json' or 'text'")
     parser.add_argument("--verbosity", help="0 = quiet, 1 = show failed, 2 = show all")
     parser.add_argument("--debug", help="Verbose logging", action='store_true')
+    parser.add_argument("--version", help="Show version", action='store_true')
     args = parser.parse_args()
 
     try:
+        if args.version:
+            print(__version__)
+            sys.exit(0)
+
         if args.debug:
             logging.set_verbose(True)
 
         config = get_configuration(os.getcwd(), args.config)
+
+        # Imports will not work, unless we pretend this script is executed in the current directory.
+        sys.path.insert(0, config.working_directory)
+
         reporter = get_reporter(config, args.reporter)
 
         if args.verbosity:
