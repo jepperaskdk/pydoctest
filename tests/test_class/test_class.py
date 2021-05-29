@@ -5,6 +5,7 @@ from pydoctest.main import PyDoctestService
 import tests.test_class.correct_class
 import tests.test_class.nodocstring_class
 import tests.test_class.incorrect_class
+import tests.test_class.raises_class
 
 
 class TestDocs():
@@ -153,3 +154,14 @@ class TestDocs():
 
         # Assert that 1 module was found in root. We do not search recursively.
         assert len(result.module_results) == 1
+
+    # Test incorrect raise
+    def func_with_incorrect_raise(self) -> None:
+        config = Configuration.get_default_configuration()
+        result = validate_function(tests.test_class.raises_class.RaisesClass.func_with_incorrect_raise, config, tests.test_class.incorrect_class)
+        assert result.result == ResultType.FAILED
+
+    def func_with_raises(self) -> None:
+        config = Configuration.get_default_configuration()
+        result = validate_function(tests.test_class.incorrect_class.IncorrectTestClass.func_with_raise_and_args_and_return, config, tests.test_class.incorrect_class)
+        assert result.result == ResultType.FAILED

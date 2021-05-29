@@ -15,12 +15,29 @@ class Parameter():
 
 
 class Parser():
+    def get_exceptions_raised(self, doc: str) -> List[str]:
+        """Returns the exceptions listed as raised in the docstring.
+
+        Args:
+            doc (str): The docstring to analyze.
+
+        Raises:
+            NotImplementedError: Raised if this is not implemented by subclasses.
+
+        Returns:
+            List[str]: List of exceptions raised.
+        """
+        raise NotImplementedError()
+
     def get_summary(self, doc: str, module_type: ModuleType) -> Optional[str]:
         """Returns the summary part of the docstring.
 
         Args:
             doc (str): The docstring to analyze.
             module_type (ModuleType): The module it was extracted from.
+
+        Raises:
+            NotImplementedError: Raised if this is not implemented by subclasses.
 
         Returns:
             Optional[str]: The summary, if it exists.

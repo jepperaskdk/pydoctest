@@ -1,7 +1,10 @@
 from collections import deque
 import inspect
-from types import ModuleType
-from typing import Type, cast
+import ast
+import textwrap
+
+from types import FunctionType, ModuleType
+from typing import List, Type, cast
 
 from pydoc import locate
 
@@ -71,3 +74,54 @@ def get_type_from_module(type_string: str, module: ModuleType) -> LocateResult:
 
     # TODO: We should make this configurable in config
     raise Exception(f"Was unable to detect the type of: {type_string} from module: {module.__file__}.\nIf you believe this is a bug, please file it here: https://github.com/jepperaskdk/pydoctest/issues")
+
+
+class RaiseVisitor(ast.NodeVisitor):
+    def __init__(self) -> None:
+        """A NodeVisitor which collects the id's of ast.Raise objects from parsing the function.
+        """
+        self.nodes: List[str] = []
+
+    def visit(self, n: ast.AST) -> None:
+        """Visits the node and if the node is an ast.Raise, we collect its id.
+
+        Args:
+            n (ast.AST): The node to test.
+
+        """
+        if isinstance(n, ast.Raise) and n.exc and isinstance(n.exc, ast.Call) and isinstance(n.exc.func, ast.Name):
+            self.nodes.append(n.exc.func.id)
+        super().visit(n)
+
+
+def get_exceptions_raised(fn: FunctionType, module: ModuleType) -> List[str]:
+    """Get exceptions raised in fn.
+
+    NOTE: We currently only return exceptions explicitly raised by the function.
+    This means, that exceptions raised from super-calls are not returned,
+    and exceptions thrown by called functions in the function are not returned.
+
+    Args:
+        fn (FunctionType): The function to get raised exceptions from.
+        module (ModuleType): The module in which the function is defined.
+
+    Returns:
+        List[str]: The list of exceptions thrown.
+    """
+    # TODO: How do we compile functions, without having to check indentation
+
+    fn_source = inspect.getsource(fn)
+    max_indents = 10
+
+    # Try to parse, and if IndentationError, dedent up to 10 times.
+    while max_indents > 0:
+        try:
+            tree = ast.parse(fn_source)
+            break
+        except IndentationError as e:
+            fn_source = textwrap.dedent(fn_source)
+            max_indents -= 1
+
+    visitor = RaiseVisitor()
+    visitor.generic_visit(tree)
+    return visitor.nodes
