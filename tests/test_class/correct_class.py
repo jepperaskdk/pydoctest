@@ -64,3 +64,8 @@ class CorrectTestClass():
             int: [description]
         """
         pass
+
+    def func_no_summary(self) -> None:
+        """
+        """
+        pass

@@ -1,4 +1,4 @@
-from typing import List, Type
+from typing import List, Optional, Type
 from types import ModuleType
 
 
@@ -15,6 +15,18 @@ class Parameter():
 
 
 class Parser():
+    def get_summary(self, doc: str, module_type: ModuleType) -> Optional[str]:
+        """Returns the summary part of the docstring.
+
+        Args:
+            doc (str): The docstring to analyze.
+            module_type (ModuleType): The module it was extracted from.
+
+        Returns:
+            Optional[str]: The summary, if it exists.
+        """
+        raise NotImplementedError()
+
     def get_parameters(self, doc: str, module_type: ModuleType) -> List[Parameter]:
         """Finds the function arguments as strings, and returns their types as Parameter instances.
 

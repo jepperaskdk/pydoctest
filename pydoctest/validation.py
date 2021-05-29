@@ -202,11 +202,18 @@ def validate_function(fn: FunctionType, config: Configuration, module_type: Modu
             result.result = ResultType.NO_DOC
         return result
 
+    parser = config.get_parser()
+
+    summary = parser.get_summary(doc, module_type)
+    if not summary and config.fail_on_missing_summary:
+        result.result = ResultType.FAILED
+        result.fail_reason = f"Function does not have a summary"
+        return result
+
     sig = inspect.signature(fn)
     sig_parameters = [Parameter(name, proxy.annotation) for name, proxy in sig.parameters.items() if name != "self"]
     sig_return_type = type(None) if sig.return_annotation is None else sig.return_annotation
 
-    parser = config.get_parser()
     try:
         doc_parameters = parser.get_parameters(doc, module_type)
         doc_return_type = parser.get_return_type(doc, module_type)

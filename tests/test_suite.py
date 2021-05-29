@@ -2,7 +2,6 @@ import subprocess
 
 from typing import Tuple
 from pydoctest.configuration import Configuration
-from pydoctest.validation import ResultType, validate_class, validate_function
 from pydoctest.main import PyDoctestService
 
 
