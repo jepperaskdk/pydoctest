@@ -56,6 +56,19 @@ class TestDocs():
         result = validate_function(tests.test_class.nodocstring_class.ClassNoDocString.func_no_docstring, config, tests.test_class.correct_class)
         assert result.result == ResultType.FAILED
 
+    def test_func_no_summary_no_fail(self) -> None:
+        config = Configuration.get_default_configuration()
+        config.fail_on_missing_summary = False
+        result = validate_function(tests.test_class.nodocstring_class.ClassNoDocString.func_no_summary, config, tests.test_class.correct_class)
+        assert result.result == ResultType.OK
+
+    def test_func_no_summary_do_fail(self) -> None:
+        config = Configuration.get_default_configuration()
+        config.fail_on_missing_summary = True
+        result = validate_function(tests.test_class.nodocstring_class.ClassNoDocString.func_no_summary, config, tests.test_class.correct_class)
+        assert result.result == ResultType.FAILED
+        assert result.fail_reason == 'Function does not have a summary'
+
     # Test incorrect_class
     def test_incorrect_class_module(self) -> None:
         config = Configuration.get_configuration_from_path("tests/test_class/pydoctest_incorrect_class.json")

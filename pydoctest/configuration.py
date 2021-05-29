@@ -33,14 +33,17 @@ class Configuration():
         self.include_paths: List[str] = []
         self.exclude_paths: List[str] = []
 
-        # Throw an error if function does not have a docstring
-        self.fail_on_missing_docstring = False
-
         # Doctype parser to use, defaults to Google
         self.parser = "google"
 
         # Verbosity of reporter, currently only used by text-reporter
         self.verbosity = Verbosity.SHOW_FAILED
+
+        # Throw an error if function does not have a docstring
+        self.fail_on_missing_docstring = False
+
+        # Throw an error if function does not have a summary
+        self.fail_on_missing_summary = False
 
     @staticmethod
     def get_default_configuration(root_dir: Optional[str] = None) -> 'Configuration':

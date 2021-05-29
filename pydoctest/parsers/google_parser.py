@@ -1,5 +1,5 @@
 from types import ModuleType
-from typing import List, Type
+from typing import List, Optional, Type
 
 from pydoctest.parsers.parser import Parameter, Parser
 from pydoctest.utilities import get_type_from_module
@@ -7,6 +7,27 @@ from pydoctest.exceptions import ParseException
 
 
 class GoogleParser(Parser):
+    def get_summary(self, doc: str, module_type: ModuleType) -> Optional[str]:
+        """Returns the summary part of the docstring.
+
+        Args:
+            doc (str): The docstring to analyze.
+            module_type (ModuleType): The module it was extracted from.
+
+        Returns:
+            Optional[str]: The summary, if it exists.
+        """
+        for needle in [ 'Args:', 'Raises:', 'Returns:' ]:
+            if needle in doc:
+                summ, _ = doc.split(needle)
+                summary = summ.strip()
+                return summary if len(summary) > 0 else None
+
+        if len(doc) > 0:
+            return doc.strip()
+
+        return None
+
     def get_parameters(self, doc: str, module_type: ModuleType) -> List[Parameter]:
         """Finds the function arguments as strings, and returns their types as Parameter instances.
 
