@@ -70,6 +70,11 @@ class TestDocs():
         assert result.result == ResultType.FAILED
         assert result.fail_reason == 'Function does not have a summary'
 
+    def test_func_with_raises(self) -> None:
+        config = Configuration.get_default_configuration()
+        result = validate_function(tests.test_class.raises_class.RaisesClass.func_with_raise_and_args_and_return, config, tests.test_class.incorrect_class)
+        assert result.result == ResultType.OK
+
     # Test incorrect_class
     def test_incorrect_class_module(self) -> None:
         config = Configuration.get_configuration_from_path("tests/test_class/pydoctest_incorrect_class.json")
@@ -156,12 +161,18 @@ class TestDocs():
         assert len(result.module_results) == 1
 
     # Test incorrect raise
-    def func_with_incorrect_raise(self) -> None:
+    def test_func_with_missing_raise(self) -> None:
+        config = Configuration.get_default_configuration()
+        result = validate_function(tests.test_class.raises_class.RaisesClass.func_with_missing_raise, config, tests.test_class.incorrect_class)
+        assert result.result == ResultType.FAILED
+
+    def test_func_with_incorrect_raise(self) -> None:
         config = Configuration.get_default_configuration()
         result = validate_function(tests.test_class.raises_class.RaisesClass.func_with_incorrect_raise, config, tests.test_class.incorrect_class)
         assert result.result == ResultType.FAILED
 
-    def func_with_raises(self) -> None:
+    def test_fail_on_raises_section_dont_fail(self) -> None:
         config = Configuration.get_default_configuration()
-        result = validate_function(tests.test_class.incorrect_class.IncorrectTestClass.func_with_raise_and_args_and_return, config, tests.test_class.incorrect_class)
-        assert result.result == ResultType.FAILED
+        config.fail_on_raises_section = False
+        result = validate_function(tests.test_class.raises_class.RaisesClass.func_with_incorrect_raise, config, tests.test_class.incorrect_class)
+        assert result.result == ResultType.OK

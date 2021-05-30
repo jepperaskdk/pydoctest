@@ -57,8 +57,37 @@ class RaisesClass():
 
         return True
 
+    def func_with_missing_raise(self) -> None:
+        """
+        """
+        if 2 == 5:
+            raise IndexError()
+
     def func_with_incorrect_raise(self) -> None:
+        """[summary]
+
+        Raises:
+            RuntimeError: [description]
+            IndexError: [description]
         """
+        if 2 == 4:
+            raise ValueError()
+
+        if 2 == 5:
+            raise IndexError()
+
+    def func_with_raise_count_mismatch(self) -> None:
+        """[summary]
+
+        Raises:
+            RuntimeError: [description]
+            IndexError: [description]
         """
+        if 2 == 3:
+            raise RuntimeError()
+
+        if 2 == 4:
+            raise ValueError()
+
         if 2 == 5:
             raise IndexError()

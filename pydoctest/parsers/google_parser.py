@@ -13,6 +13,9 @@ class GoogleParser(Parser):
         Args:
             doc (str): The docstring to analyze.
 
+        Raises:
+            ParseException: If unable to parse an argument-line.
+
         Returns:
             List[str]: List of exceptions raised.
         """
@@ -31,7 +34,7 @@ class GoogleParser(Parser):
             if ':' in exc_line:
                 exceptions_raised.append(exc_line.split(":")[0])
             else:
-                exceptions_raised.append(exc_line)
+                raise ParseException(exc_line)
 
         return exceptions_raised
 
@@ -106,6 +109,9 @@ class GoogleParser(Parser):
             doc (str): Function docstring.
             module_type (ModuleType): The module the docstring was extracted from.
 
+        Raises:
+            ParseException: If unable to parse the return type line.
+
         Returns:
             Type: The return type parsed from the docs.
         """
@@ -113,7 +119,9 @@ class GoogleParser(Parser):
             return type(None)
 
         _, returns = doc.split("Returns:")
-
-        doctype, _ = returns.strip().split(":")
+        try:
+            doctype, _ = returns.strip().split(":")
+        except ValueError:
+            raise ParseException(returns)
 
         return get_type_from_module(doctype, module_type).type

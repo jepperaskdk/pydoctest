@@ -93,3 +93,17 @@ class IncorrectTestClass():
             int: [description]
         """
         pass
+
+    def func_parse_exception(self, a: int) -> int:
+        """[summary]
+
+        Args:
+            THISDOESNTPARSE
+
+        Raises:
+            THISDOESNTPARSE
+
+        Returns:
+            THISDOESNTPARSE
+        """
+        pass
