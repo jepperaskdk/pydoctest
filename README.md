@@ -68,6 +68,7 @@ Full list of arguments:
 - "fail_on_missing_docstring": [ true | false (default) ]  # Mark a function as failed, if it does not have a docstring
 - "fail_on_missing_summary": [ true | false (default) ]  # Mark a function as failed, if it does have a docstring, but no summary.
 - "fail_on_raises_section": [ true (default) | false ]  # Mark a function as failed, if docstring doesn't mention raised exceptions correctly.
+
 License
 -------
 
