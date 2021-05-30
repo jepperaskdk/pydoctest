@@ -7,6 +7,37 @@ from pydoctest.exceptions import ParseException
 
 
 class GoogleParser(Parser):
+    def get_exceptions_raised(self, doc: str) -> List[str]:
+        """Returns the exceptions listed as raised in the docstring.
+
+        Args:
+            doc (str): The docstring to analyze.
+
+        Raises:
+            ParseException: If unable to parse an argument-line.
+
+        Returns:
+            List[str]: List of exceptions raised.
+        """
+        if 'Raises:' not in doc:
+            return []
+
+        _, tail = doc.split('Raises:')
+
+        if 'Returns:' in tail:
+            exceptions, returns = tail.split('Returns:')
+        else:
+            exceptions = tail
+
+        exceptions_raised: List[str] = []
+        for exc_line in [x.strip() for x in exceptions.split("\n") if x]:
+            if ':' in exc_line:
+                exceptions_raised.append(exc_line.split(":")[0])
+            else:
+                raise ParseException(exc_line)
+
+        return exceptions_raised
+
     def get_summary(self, doc: str, module_type: ModuleType) -> Optional[str]:
         """Returns the summary part of the docstring.
 
@@ -35,6 +66,9 @@ class GoogleParser(Parser):
             doc (str): Function docstring.
             module_type (ModuleType): The module the docstring was extracted from.
 
+        Raises:
+            ParseException: If unable to parse an argument-line.
+
         Returns:
             List[Parameter]: The parameters parsed from the docstring.
         """
@@ -47,7 +81,7 @@ class GoogleParser(Parser):
         else:
             arguments_string = tail
 
-        if 'Raises' in arguments_string:
+        if 'Raises:' in arguments_string:
             arguments_string, _ = tail.split('Raises:')
 
         # TODO: Improve this. We might encounter more newlines.
@@ -75,6 +109,9 @@ class GoogleParser(Parser):
             doc (str): Function docstring.
             module_type (ModuleType): The module the docstring was extracted from.
 
+        Raises:
+            ParseException: If unable to parse the return type line.
+
         Returns:
             Type: The return type parsed from the docs.
         """
@@ -82,7 +119,9 @@ class GoogleParser(Parser):
             return type(None)
 
         _, returns = doc.split("Returns:")
-
-        doctype, _ = returns.strip().split(":")
+        try:
+            doctype, _ = returns.strip().split(":")
+        except ValueError:
+            raise ParseException(returns)
 
         return get_type_from_module(doctype, module_type).type

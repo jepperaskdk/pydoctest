@@ -45,6 +45,9 @@ class Configuration():
         # Throw an error if function does not have a summary
         self.fail_on_missing_summary = False
 
+        # Throw an error if 'raises' section does not list all exceptions
+        self.fail_on_raises_section = True
+
     @staticmethod
     def get_default_configuration(root_dir: Optional[str] = None) -> 'Configuration':
         """Returns a configuration with default values.
@@ -100,6 +103,9 @@ class Configuration():
 
     def get_parser(self) -> Parser:
         """Checks if the desired Parser exists and returns it.
+
+        Raises:
+            Exception: If parser from Configuration doesn't exist.
 
         Returns:
             Parser: A supported Parser.

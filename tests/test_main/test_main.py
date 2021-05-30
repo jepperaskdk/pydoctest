@@ -23,14 +23,14 @@ class TestGetConfiguration():
         assert config.working_directory.endswith("tests/test_main")
 
         # Used by another test, but we use it to verify we found the right pydoctest.json
-        assert config.include_paths == [ "notpythonmodule" ]
+        assert config.include_paths == [ "notpythonmodule", "notproperpython.py" ]
 
     def test_get_configuration_with_config_path(self) -> None:
         config = get_configuration("this is ignored", "tests/test_main/pydoctest.json")
         assert config.working_directory.endswith("tests/test_main")
 
         # Used by another test, but we use it to verify we found the right pydoctest.json
-        assert config.include_paths == [ "notpythonmodule" ]
+        assert config.include_paths == [ "notpythonmodule", "notproperpython.py" ]
 
     def test_get_configuration_with_no_config(self) -> None:
         config = get_configuration("tests/test_main/no_config_here")

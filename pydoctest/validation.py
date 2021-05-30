@@ -9,6 +9,7 @@ from pydoctest.logging import log
 from pydoctest.configuration import Configuration
 from pydoctest.parsers.parser import Parameter
 from pydoctest.exceptions import ParseException
+from pydoctest.utilities import get_exceptions_raised
 
 
 class ValidationCounts():
@@ -222,16 +223,19 @@ def validate_function(fn: FunctionType, config: Configuration, module_type: Modu
         result.fail_reason = f"Unable to parse doctstring: {str(e)}"
         return result
 
+    # Validate return type
     if sig_return_type != doc_return_type:
         result.result = ResultType.FAILED
         result.fail_reason = f"Return type differ. Expected (from signature) {sig_return_type}, but got (in docs) {doc_return_type}."
         return result
 
+    # Validate equal number of parameters
     if len(sig_parameters) != len(doc_parameters):
         result.result = ResultType.FAILED
         result.fail_reason = f"Number of arguments differ. Expected (from signature) {len(sig_parameters)} arguments, but found (in docs) {len(doc_parameters)}."
         return result
 
+    # Validate name and type of function parameters
     for sigparam, docparam in zip(sig_parameters, doc_parameters):
         if sigparam.name != docparam.name:
             result.result = ResultType.FAILED
@@ -242,6 +246,22 @@ def validate_function(fn: FunctionType, config: Configuration, module_type: Modu
         if sigparam.type != docparam.type:
             result.result = ResultType.FAILED
             result.fail_reason = f"Argument type differ. Argument '{sigparam.name}' was expected (from signature) to have type '{sigparam.type}', but has (in docs) type '{docparam.type}'"
+            return result
+
+    # Validate exceptions raised
+    if config.fail_on_raises_section:
+        sig_exceptions = get_exceptions_raised(fn, module_type)
+        doc_exceptions = parser.get_exceptions_raised(doc)
+
+        if len(sig_exceptions) != len(doc_exceptions):
+            result.result = ResultType.FAILED
+            result.fail_reason = f"Number of listed raised exceptions does not match actual. Doc: {doc_exceptions}, expected: {sig_exceptions}"
+            return result
+
+        intersection = set(sig_exceptions) - set(doc_exceptions)
+        if len(intersection) > 0:
+            result.result = ResultType.FAILED
+            result.fail_reason = f"Listed raised exceptions does not match actual. Docstring: {doc_exceptions}, expected: {sig_exceptions}"
             return result
 
     result.result = ResultType.OK

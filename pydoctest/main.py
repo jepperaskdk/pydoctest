@@ -86,7 +86,7 @@ class PyDoctestService():
         try:
             module_type = importlib.util.module_from_spec(module_spec)
             module_spec.loader.exec_module(module_type)
-        except ModuleNotFoundError as e:
+        except Exception as e:
             result.result = ResultType.FAILED
             result.fail_reason = f"Failed to load module: {module_path}"
             return result

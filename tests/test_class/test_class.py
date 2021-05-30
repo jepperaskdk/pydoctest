@@ -5,6 +5,7 @@ from pydoctest.main import PyDoctestService
 import tests.test_class.correct_class
 import tests.test_class.nodocstring_class
 import tests.test_class.incorrect_class
+import tests.test_class.raises_class
 
 
 class TestDocs():
@@ -68,6 +69,11 @@ class TestDocs():
         result = validate_function(tests.test_class.nodocstring_class.ClassNoDocString.func_no_summary, config, tests.test_class.correct_class)
         assert result.result == ResultType.FAILED
         assert result.fail_reason == 'Function does not have a summary'
+
+    def test_func_with_raises(self) -> None:
+        config = Configuration.get_default_configuration()
+        result = validate_function(tests.test_class.raises_class.RaisesClass.func_with_raise_and_args_and_return, config, tests.test_class.incorrect_class)
+        assert result.result == ResultType.OK
 
     # Test incorrect_class
     def test_incorrect_class_module(self) -> None:
@@ -153,3 +159,20 @@ class TestDocs():
 
         # Assert that 1 module was found in root. We do not search recursively.
         assert len(result.module_results) == 1
+
+    # Test incorrect raise
+    def test_func_with_missing_raise(self) -> None:
+        config = Configuration.get_default_configuration()
+        result = validate_function(tests.test_class.raises_class.RaisesClass.func_with_missing_raise, config, tests.test_class.incorrect_class)
+        assert result.result == ResultType.FAILED
+
+    def test_func_with_incorrect_raise(self) -> None:
+        config = Configuration.get_default_configuration()
+        result = validate_function(tests.test_class.raises_class.RaisesClass.func_with_incorrect_raise, config, tests.test_class.incorrect_class)
+        assert result.result == ResultType.FAILED
+
+    def test_fail_on_raises_section_dont_fail(self) -> None:
+        config = Configuration.get_default_configuration()
+        config.fail_on_raises_section = False
+        result = validate_function(tests.test_class.raises_class.RaisesClass.func_with_incorrect_raise, config, tests.test_class.incorrect_class)
+        assert result.result == ResultType.OK

@@ -7,7 +7,7 @@ from pydoctest.configuration import Configuration
 
 from pydoctest.validation import ResultType, validate_class, validate_function
 from pydoctest.main import PyDoctestService
-from pydoctest.utilities import get_type_from_module
+from pydoctest.utilities import get_exceptions_raised, get_type_from_module
 import tests.test_utilities.example_class
 
 
@@ -44,3 +44,23 @@ class TestUtilities():
         with pytest.raises(Exception) as exc_info:
             result = validate_function(tests.test_utilities.example_class.ExampleClass.func_raises, config, tests.test_utilities.example_class)
         assert 'Was unable to detect the type of: DEFINITELYNOTACLASS from module:' in str(exc_info.value)
+
+    def test_get_exceptions_raised(self) -> None:
+        actual_exceptions = get_exceptions_raised(tests.test_utilities.example_class.ExampleClass.func_with_raise, tests.test_utilities.example_class)
+        expected_exceptions = [ 'RuntimeError', 'ValueError', 'IndexError' ]
+        assert len(expected_exceptions) == len(actual_exceptions)
+
+        intersection = set(expected_exceptions) - set(actual_exceptions)
+        assert len(intersection) == 0
+
+    def test_get_exceptions_empty(self) -> None:
+        actual_exceptions = get_exceptions_raised(tests.test_utilities.example_class.ExampleClass.func_locate, tests.test_utilities.example_class)
+        assert len(actual_exceptions) == 0
+
+    def test_global_func_raises(self) -> None:
+        actual_exceptions = get_exceptions_raised(tests.test_utilities.example_class.global_func_raises, tests.test_utilities.example_class)
+        expected_exceptions = [ 'RuntimeError', 'ValueError', 'IndexError' ]
+        assert len(expected_exceptions) == len(actual_exceptions)
+
+        intersection = set(expected_exceptions) - set(actual_exceptions)
+        assert len(intersection) == 0

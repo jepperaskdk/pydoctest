@@ -4,6 +4,7 @@ from pydoctest.configuration import PARSERS
 from pydoctest.parsers.google_parser import GoogleParser
 
 import tests.test_class.correct_class
+import tests.test_class.raises_class
 
 
 class TestParsers():
@@ -77,6 +78,7 @@ class TestParsers():
             doc = pydoc.getdoc(tests.test_class.correct_class.CorrectTestClass.func_with_multiline_summary)
 
             summary = p.get_summary(doc, tests.test_class.correct_class)
+            assert summary is not None
             assert len(summary) > 0, f"Parser {name} failed assertion"
             assert(len([x for x in summary if x == '\n']) > 1), f"Parser {name} failed assertion"
 
@@ -93,3 +95,35 @@ class TestParsers():
             summary = p.get_summary(doc, tests.test_class.correct_class)
             assert summary is None, f"Parser {name} failed assertion"
 
+    def test_func_with_raise_and_args_and_return(self) -> None:
+        for name, parser in PARSERS.items():
+            p = parser()
+            doc = pydoc.getdoc(tests.test_class.raises_class.RaisesClass.func_with_raise_and_args_and_return)
+            actual_exceptions = p.get_exceptions_raised(doc)
+            expected_exceptions = [ 'RuntimeError', 'ValueError', 'IndexError' ]
+            assert len(expected_exceptions) == len(actual_exceptions)
+
+            intersection = set(expected_exceptions) - set(actual_exceptions)
+            assert len(intersection) == 0
+
+    def test_func_with_raise_and_args(self) -> None:
+        for name, parser in PARSERS.items():
+            p = parser()
+            doc = pydoc.getdoc(tests.test_class.raises_class.RaisesClass.func_with_raise_and_args)
+            actual_exceptions = p.get_exceptions_raised(doc)
+            expected_exceptions = [ 'RuntimeError', 'ValueError', 'IndexError' ]
+            assert len(expected_exceptions) == len(actual_exceptions)
+
+            intersection = set(expected_exceptions) - set(actual_exceptions)
+            assert len(intersection) == 0
+
+    def test_func_with_raise(self) -> None:
+        for name, parser in PARSERS.items():
+            p = parser()
+            doc = pydoc.getdoc(tests.test_class.raises_class.RaisesClass.func_with_raise)
+            actual_exceptions = p.get_exceptions_raised(doc)
+            expected_exceptions = [ 'RuntimeError', 'ValueError', 'IndexError' ]
+            assert len(expected_exceptions) == len(actual_exceptions)
+
+            intersection = set(expected_exceptions) - set(actual_exceptions)
+            assert len(intersection) == 0
