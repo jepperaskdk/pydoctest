@@ -43,6 +43,9 @@ class PyDoctestService():
     def validate(self, modules: Optional[List[str]] = None) -> ValidationResult:
         """Validate the found modules using the provided reporter.
 
+        Args:
+            modules (Optional[List[str]]): Optionally, specify directly the modules rather than discover.
+
         Returns:
             ValidationResult: Information about whether validation succeeded.
         """

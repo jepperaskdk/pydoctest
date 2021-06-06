@@ -14,7 +14,7 @@ class TestPydoctest():
         ds = PyDoctestService(config)
         result = ds.validate()
         counts = result.get_counts()
-        assert counts.functions_failed == 0
+        assert counts.functions_failed == 0, "Run pydoctest on project and fix docstrings."
         # TODO: This doesn't artificially bring up our code-coverage, right?
 
 
