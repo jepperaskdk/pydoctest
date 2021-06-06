@@ -12,6 +12,23 @@ from pydoctest.exceptions import ParseException
 from pydoctest.utilities import get_exceptions_raised
 
 
+class Range():
+
+    def __init__(self, start_line: int, end_line: int, start_character: int, end_character: int) -> None:
+        """Creates a new range object, used for indicating errors in vscode.
+
+        Args:
+            start_line (int): Where the range starts.
+            end_line (int): Where the range ends.
+            start_character (int): The column the range starts in (in start_line).
+            end_character (int): The column the range ends in (in end_line).
+        """
+        self.start_line: int = start_line
+        self.end_line: int = end_line
+        self.start_character: int = start_character
+        self.end_character: int = end_character
+
+
 class ValidationCounts():
     def __init__(self) -> None:
         """Helper class for storing counts from running Pydoctest.
@@ -65,6 +82,7 @@ class FunctionValidationResult(Result):
         """
         super().__init__()
         self.function = function
+        self.range: Optional[Range] = None
 
     def to_dict(self) -> Dict[str, Any]:
         """Serializes this class to dict, which is useful for the JSONReporter.
