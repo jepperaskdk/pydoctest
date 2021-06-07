@@ -40,8 +40,11 @@ class PyDoctestService():
         """
         self.config = config
 
-    def validate(self) -> ValidationResult:
+    def validate(self, modules: Optional[List[str]] = None) -> ValidationResult:
         """Validate the found modules using the provided reporter.
+
+        Args:
+            modules (Optional[List[str]]): Optionally, specify directly the modules rather than discover.
 
         Returns:
             ValidationResult: Information about whether validation succeeded.
@@ -49,8 +52,9 @@ class PyDoctestService():
         logging.log('Starting validating')
         result = ValidationResult()
 
-        modules = self.discover_modules()
-        logging.log(f'Found {len(modules)} modules')
+        if modules is None:
+            modules = self.discover_modules()
+            logging.log(f'Found {len(modules)} modules')
 
         for module in modules:
             module_result = self.validate_module(module)
@@ -218,6 +222,7 @@ def main() -> None:  # pragma: no cover
     parser.add_argument("--verbosity", help="0 = quiet, 1 = show failed, 2 = show all")
     parser.add_argument("--debug", help="Verbose logging", action='store_true')
     parser.add_argument("--version", help="Show version", action='store_true')
+    parser.add_argument("--file", help="Analyze single file")
     args = parser.parse_args()
 
     try:
@@ -242,7 +247,11 @@ def main() -> None:  # pragma: no cover
         config.get_parser()
 
         ds = PyDoctestService(config)
-        result = ds.validate()
+
+        if args.file:
+            result = ds.validate([os.path.abspath(args.file)])
+        else:
+            result = ds.validate()
 
         output = reporter.get_output(result)
 

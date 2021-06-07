@@ -92,7 +92,7 @@ class GoogleParser(Parser):
         parameters = []
         for arg_string in args_strings:
             try:
-                docname, tail = [x.strip() for x in arg_string.split('(')]
+                docname, tail = [x.strip() for x in arg_string.split('(', maxsplit=1)]
                 doctype, tail = tail.split(':')
                 doctype = doctype.replace(')', '')
                 doctype = doctype.replace(', optional', '')  # TODO: How do we deal with Optional[int] being (Optional[int], optional)?

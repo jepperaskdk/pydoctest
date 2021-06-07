@@ -1,5 +1,6 @@
 from enum import IntEnum
 import inspect
+from sys import modules
 import types
 
 from types import FunctionType, ModuleType
@@ -10,6 +11,38 @@ from pydoctest.configuration import Configuration
 from pydoctest.parsers.parser import Parameter
 from pydoctest.exceptions import ParseException
 from pydoctest.utilities import get_exceptions_raised
+
+
+class Range():
+
+    def __init__(self, start_line: int, end_line: int, start_character: int, end_character: int) -> None:
+        """Creates a new range object, used for indicating errors in vscode.
+
+        TODO: Are these zero- or one-indexed?
+
+        Args:
+            start_line (int): Where the range starts.
+            end_line (int): Where the range ends.
+            start_character (int): The column the range starts in (in start_line).
+            end_character (int): The column the range ends in (in end_line).
+        """
+        self.start_line: int = start_line
+        self.end_line: int = end_line
+        self.start_character: int = start_character
+        self.end_character: int = end_character
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Serializes this class to dict, which is useful for the JSONReporter.
+
+        Returns:
+            Dict[str, Any]: The range.
+        """
+        return {
+            'start_line': self.start_line,
+            'end_line': self.end_line,
+            'start_character': self.start_character,
+            'end_character': self.end_character
+        }
 
 
 class ValidationCounts():
@@ -65,6 +98,7 @@ class FunctionValidationResult(Result):
         """
         super().__init__()
         self.function = function
+        self.range: Optional[Range] = None
 
     def to_dict(self) -> Dict[str, Any]:
         """Serializes this class to dict, which is useful for the JSONReporter.
@@ -74,7 +108,8 @@ class FunctionValidationResult(Result):
         """
         return {
             **super().to_dict(),
-            'function': str(self.function)
+            'function': str(self.function),
+            'range': self.range.to_dict() if self.range else None
         }
 
 
@@ -180,6 +215,29 @@ class ValidationResult(Result):
         return counts
 
 
+def __get_docstring_range(fn: FunctionType, module_type: ModuleType, docstring: Optional[str] = None) -> Optional[Range]:
+    """Returns the range for the docstring.
+
+    Args:
+        fn (FunctionType): The function to validate.
+        module_type (ModuleType): The module from which the function was extracted.
+        docstring (Optional[str]): Optionally, the docstring.
+
+    Returns:
+        Optional[Range]: The range, if found.
+    """
+    lines, line_number = inspect.getsourcelines(fn)
+    start_line, end_line = -1, -1
+    for i, l in enumerate(lines):
+        if '"""' in l:
+            if start_line == -1:
+                start_line = line_number + i
+            elif end_line == -1:
+                end_line = line_number + i
+                return Range(start_line, end_line, 0, 0)
+    return None
+
+
 def validate_function(fn: FunctionType, config: Configuration, module_type: ModuleType) -> FunctionValidationResult:
     """Validates the docstring of a function against its signature.
 
@@ -199,6 +257,8 @@ def validate_function(fn: FunctionType, config: Configuration, module_type: Modu
         if config.fail_on_missing_docstring:
             result.result = ResultType.FAILED
             result.fail_reason = f"Function does not have a docstring"
+            _, line_number = inspect.getsourcelines(fn)
+            result.range = Range(line_number, line_number, 0, 0)
         else:
             result.result = ResultType.NO_DOC
         return result
@@ -209,6 +269,7 @@ def validate_function(fn: FunctionType, config: Configuration, module_type: Modu
     if not summary and config.fail_on_missing_summary:
         result.result = ResultType.FAILED
         result.fail_reason = f"Function does not have a summary"
+        result.range = __get_docstring_range(fn, module_type, doc)
         return result
 
     sig = inspect.signature(fn)
@@ -220,19 +281,22 @@ def validate_function(fn: FunctionType, config: Configuration, module_type: Modu
         doc_return_type = parser.get_return_type(doc, module_type)
     except ParseException as e:
         result.result = ResultType.FAILED
-        result.fail_reason = f"Unable to parse doctstring: {str(e)}"
+        result.fail_reason = f"Unable to parse docstring: {str(e)}"
+        result.range = __get_docstring_range(fn, module_type, doc)
         return result
 
     # Validate return type
     if sig_return_type != doc_return_type:
         result.result = ResultType.FAILED
         result.fail_reason = f"Return type differ. Expected (from signature) {sig_return_type}, but got (in docs) {doc_return_type}."
+        result.range = __get_docstring_range(fn, module_type, doc)
         return result
 
     # Validate equal number of parameters
     if len(sig_parameters) != len(doc_parameters):
         result.result = ResultType.FAILED
         result.fail_reason = f"Number of arguments differ. Expected (from signature) {len(sig_parameters)} arguments, but found (in docs) {len(doc_parameters)}."
+        result.range = __get_docstring_range(fn, module_type, doc)
         return result
 
     # Validate name and type of function parameters
@@ -240,12 +304,14 @@ def validate_function(fn: FunctionType, config: Configuration, module_type: Modu
         if sigparam.name != docparam.name:
             result.result = ResultType.FAILED
             result.fail_reason = f"Argument name differ. Expected (from signature) '{sigparam.name}', but got (in docs) '{docparam.name}'"
+            result.range = __get_docstring_range(fn, module_type, doc)
             return result
 
         # NOTE: Optional[str] == Union[str, None] # True
         if sigparam.type != docparam.type:
             result.result = ResultType.FAILED
             result.fail_reason = f"Argument type differ. Argument '{sigparam.name}' was expected (from signature) to have type '{sigparam.type}', but has (in docs) type '{docparam.type}'"
+            result.range = __get_docstring_range(fn, module_type, doc)
             return result
 
     # Validate exceptions raised
@@ -256,12 +322,14 @@ def validate_function(fn: FunctionType, config: Configuration, module_type: Modu
         if len(sig_exceptions) != len(doc_exceptions):
             result.result = ResultType.FAILED
             result.fail_reason = f"Number of listed raised exceptions does not match actual. Doc: {doc_exceptions}, expected: {sig_exceptions}"
+            result.range = __get_docstring_range(fn, module_type, doc)
             return result
 
         intersection = set(sig_exceptions) - set(doc_exceptions)
         if len(intersection) > 0:
             result.result = ResultType.FAILED
             result.fail_reason = f"Listed raised exceptions does not match actual. Docstring: {doc_exceptions}, expected: {sig_exceptions}"
+            result.range = __get_docstring_range(fn, module_type, doc)
             return result
 
     result.result = ResultType.OK
