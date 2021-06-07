@@ -32,6 +32,11 @@ class Range():
         self.end_character: int = end_character
 
     def to_dict(self) -> Dict[str, Any]:
+        """Serializes this class to dict, which is useful for the JSONReporter.
+
+        Returns:
+            Dict[str, Any]: The range.
+        """
         return {
             'start_line': self.start_line,
             'end_line': self.end_line,
