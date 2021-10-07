@@ -20,21 +20,21 @@ class TestMain():
 class TestGetConfiguration():
     def test_get_configuration_with_root_dir(self) -> None:
         config = get_configuration("tests/test_main")
-        assert config.working_directory.endswith("tests/test_main")
+        assert config.working_directory.replace("\\", "/").endswith("tests/test_main")
 
         # Used by another test, but we use it to verify we found the right pydoctest.json
         assert config.include_paths == [ "notpythonmodule", "notproperpython.py" ]
 
     def test_get_configuration_with_config_path(self) -> None:
         config = get_configuration("this is ignored", "tests/test_main/pydoctest.json")
-        assert config.working_directory.endswith("tests/test_main")
+        assert config.working_directory.replace("\\", "/").endswith("tests/test_main")
 
         # Used by another test, but we use it to verify we found the right pydoctest.json
         assert config.include_paths == [ "notpythonmodule", "notproperpython.py" ]
 
     def test_get_configuration_with_no_config(self) -> None:
         config = get_configuration("tests/test_main/no_config_here")
-        assert config.working_directory.endswith("tests/test_main/no_config_here")
+        assert config.working_directory.replace("\\", "/").endswith("tests/test_main/no_config_here")
 
         # Default configs have empty include_paths
         assert config.include_paths == []
