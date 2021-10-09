@@ -22,6 +22,7 @@ class GoogleParser(Parser):
         if 'Raises:' not in doc:
             return []
 
+        # TODO: Try/except this?
         _, tail = doc.split('Raises:')
 
         if 'Returns:' in tail:

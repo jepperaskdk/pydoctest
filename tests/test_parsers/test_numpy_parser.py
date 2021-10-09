@@ -21,12 +21,6 @@ class TestNumpyParser():
         with pytest.raises(ParseException) as exc_info:
             parser.get_return_type(doc, tests.test_parsers.numpy_class)
 
-    def test_get_exceptions_raised(self) -> None:
-        parser = NumpyParser()
-        doc = pydoc.getdoc(tests.test_parsers.numpy_class.IncorrectTestClass.func_parse_exception)
-        with pytest.raises(ParseException) as exc_info:
-            parser.get_exceptions_raised(doc)
-
     def test_empty_func(self) -> None:
         parser = NumpyParser()
         doc = pydoc.getdoc(tests.test_parsers.numpy_class.CorrectTestClass.empty_func)
@@ -49,6 +43,15 @@ class TestNumpyParser():
     def test_func_returns_int(self) -> None:
         parser = NumpyParser()
         doc = pydoc.getdoc(tests.test_parsers.numpy_class.CorrectTestClass.func_returns_int)
+        arguments = parser.get_parameters(doc, tests.test_parsers.numpy_class)
+        assert len(arguments) == 0, f"NumpyParser failed assertion"
+
+        return_type = parser.get_return_type(doc, tests.test_parsers.numpy_class)
+        assert return_type == int, f"NumpyParser failed assertion"
+
+    def test_func_returns_int_name_type(self) -> None:
+        parser = NumpyParser()
+        doc = pydoc.getdoc(tests.test_parsers.numpy_class.CorrectTestClass.func_returns_int_name_type)
         arguments = parser.get_parameters(doc, tests.test_parsers.numpy_class)
         assert len(arguments) == 0, f"NumpyParser failed assertion"
 
@@ -125,6 +128,14 @@ class TestNumpyParser():
 
         intersection = set(expected_exceptions) - set(actual_exceptions)
         assert len(intersection) == 0
+
+        parameters = parser.get_parameters(doc, tests.test_parsers.numpy_class)
+        assert len(parameters) == 2
+        assert parameters[0].name == 'a'
+        assert parameters[0].type == int
+
+        assert parameters[1].name == 'b'
+        assert parameters[1].type == float
 
     def test_func_with_raise(self) -> None:
         parser = NumpyParser()

@@ -1,10 +1,14 @@
 # TODO: Convert google format below to numpy.
+# TODO: Cover multiple returns in one docstring
 
 def failing_global_function(a: int) -> int:
     """[summary]
+
                             <-- missing args
-    Returns:
-        int: [description]
+    Returns
+    -------
+    int
+        [description]
     """
     pass
 
@@ -13,27 +17,35 @@ class IncorrectTestClass():
     def empty_func(self) -> None:
         """Empty func
 
-        Args:
-            a (int): [description]          <-- should have no args
+        Parameters
+        ----------
+        s : int
+            [description]                   <-- should have no args
         """
         pass
 
     def func_returns_none(self, a: int) -> None:
         """Func returns None
 
-        Args:
-            a (int): [description]
+        Parameters
+        ----------
+        a : int
+            [description]
 
-        Returns:
-            int: [description]              <-- should not be there
+        Returns
+        -------
+        int                             <-- should not be there
+            [description]
         """
         pass
 
     def func_returns_int(self) -> int:
         """Func returns int
 
-        Returns:
-            bool: [description]             <-- incorrect
+        Returns
+        -------
+        bool                            <-- incorrect
+            [description]
         """
         pass
 
@@ -46,8 +58,10 @@ class IncorrectTestClass():
     def func_has_raises_doc(self, a: int) -> int:
         """[summary]
 
-        Raises:
-            Exception: [description]           <-- Only have raises
+        Raises
+        ------
+        Exception
+            [description]                       <-- Only have raises
         """
         raise Exception()
 
@@ -63,48 +77,63 @@ class IncorrectTestClass():
         Donec ultrices lectus eu mauris lacinia, nec tincidunt tortor facilisis.
         Sed condimentum elit non metus sagittis tempor. Cras mollis lacus lacus, vitae placerat quam laoreet id.
 
-        Args:
-            a (int): [description]
-            b (int): [description]          <-- incorrect
+        Parameters
+        ----------
+        a : int
+            [description]
+        b : int                             <-- incorrect
+            [description]
 
-        Returns:
-            int: [description]
+        Returns
+        -------
+        int
+            [description]
         """
         pass
 
     def func_name_mismatch(self, a: int) -> int:
         """[summary]
 
-        Args:
-            b (int): [description]      <-- name is not 'a'
+        Parameters
+        ----------
+        b : int                     <-- name is not 'a'
+            [description]
 
-        Returns:
-            int: [description]
+        Returns
+        -------
+        int
+            [description]
         """
         pass
 
     def func_type_mismatch(self, a: int) -> int:
         """[summary]
 
-        Args:
-            a (float): [description]        <-- float is not int
+        Parameters
+        ----------
+        a : float                       <-- float is not int
+            [description]
 
-        Returns:
-            int: [description]
+        Returns
+        -------
+        int
+            [description]
         """
         pass
 
     def func_parse_exception(self, a: int) -> int:
         """[summary]
 
-        Args:
-            THISDOESNTPARSE
+        Parameters
+        ----------
+        THISDOESNTPARSE
 
-        Raises:
-            THISDOESNTPARSE
+        Returns
+        -------
+        THISDOESNTPARSE
 
-        Returns:
-            THISDOESNTPARSE
+        Raises
+        ------
         """
         pass
 
@@ -118,41 +147,65 @@ class CorrectTestClass():
     def func_returns_none(self, a: int) -> None:
         """Func returns None
 
-        Args:
-            a (int): [description]
+        Parameters
+        ----------
+        a : int
+            [description]
         """
         pass
 
     def func_returns_int(self) -> int:
         """Func returns int
 
-        Returns:
-            int: [description]
+        Returns
+        -------
+        int
+            [description]
+        """
+        pass
+
+    def func_returns_int_name_type(self) -> int:
+        """Func returns int as name/type combo
+
+        Returns
+        -------
+        my_var : int
+            [description]
         """
         pass
 
     def func_has_arg_returns_arg(self, a: int) -> float:
         """Func takes argument and returns argument
 
-        Args:
-            a (int): [description]
+        Parameters
+        ----------
+        a : int
+            [description]
 
-        Returns:
-            float: [description]
+        Returns
+        -------
+        float
+            [description]
         """
         pass
 
     def func_has_raises_doc(self, a: int) -> int:
         """[summary]
 
-        Args:
-            a (int): [description]
+        Parameters
+        ----------
+        a : int
+            [description]
 
-        Raises:
-            Exception: [description]
+        Returns
+        -------
+        int
+            [description]
 
-        Returns:
-            int: [description]
+        Raises
+        ------
+        Exception
+            [description]
         """
         raise Exception()
 
@@ -168,27 +221,38 @@ class CorrectTestClass():
         Donec ultrices lectus eu mauris lacinia, nec tincidunt tortor facilisis.
         Sed condimentum elit non metus sagittis tempor. Cras mollis lacus lacus, vitae placerat quam laoreet id.
 
-        Args:
-            a (int): [description]
+        Parameters
+        ----------
+        a : int
+            [description]
 
-        Returns:
-            int: [description]
+        Returns
+        -------
+        int
+            [description]
         """
         pass
 
     def func_no_summary(self) -> None:
         """
+
         """
         pass
 
 
 class RaisesClass():
+
     def func_with_raise(self) -> None:
-        """
-        Raises:
-            RuntimeError: [description]
-            ValueError: [description]
-            IndexError: [description]
+        """[summary]
+
+        Raises
+        ------
+        RuntimeError
+            [description]
+        ValueError
+            [description]
+        IndexError
+            [description]
         """
         if 2 == 3:
             raise RuntimeError()
@@ -200,11 +264,23 @@ class RaisesClass():
             raise IndexError()
 
     def func_with_raise_and_args(self, a: int, b: float) -> None:
-        """
-        Raises:
-            RuntimeError: [description]
-            ValueError: [description]
-            IndexError: [description]
+        """[summary]
+
+        Parameters
+        ----------
+        a : int
+            [description]
+        b : float
+            [description]
+
+        Raises
+        ------
+        RuntimeError
+            [description]
+        ValueError
+            [description]
+        IndexError
+            [description]
         """
         if 2 == 3:
             raise RuntimeError()
@@ -218,17 +294,26 @@ class RaisesClass():
     def func_with_raise_and_args_and_return(self, a: int, b: float) -> bool:
         """[summary]
 
-        Args:
-            a (int): [description]
-            b (float): [description]
+        Parameters
+        ----------
+        a : int
+            [description]
+        b : float
+            [description]
 
-        Raises:
-            RuntimeError: [description]
-            ValueError: [description]
-            IndexError: [description]
+        Returns
+        -------
+        bool
+            [description]
 
-        Returns:
-            bool: [description]
+        Raises
+        ------
+        RuntimeError
+            [description]
+        ValueError
+            [description]
+        IndexError
+            [description]
         """
         if 2 == 3:
             raise RuntimeError()
@@ -250,9 +335,12 @@ class RaisesClass():
     def func_with_incorrect_raise(self) -> None:
         """[summary]
 
-        Raises:
-            RuntimeError: [description]
-            IndexError: [description]
+        Raises
+        ------
+        RuntimeError
+            [description]
+        IndexError
+            [description]
         """
         if 2 == 4:
             raise ValueError()
@@ -263,9 +351,12 @@ class RaisesClass():
     def func_with_raise_count_mismatch(self) -> None:
         """[summary]
 
-        Raises:
-            RuntimeError: [description]
-            IndexError: [description]
+        Raises
+        ------
+        RuntimeError
+            [description]
+        IndexError
+            [description]
         """
         if 2 == 3:
             raise RuntimeError()

@@ -15,7 +15,7 @@ class RaisesClass():
         if 2 == 5:
             raise IndexError()
 
-    def func_with_raise_and_args(self, a: int, b: float) -> None:
+    def func_with_raise_and_args(self) -> None:
         """
         Raises:
             RuntimeError: [description]
