@@ -8,6 +8,7 @@ from pydoctest.logging import log
 from pydoctest.parsers.parser import Parser
 from pydoctest.parsers.google_parser import GoogleParser
 from pydoctest.parsers.numpy_parser import NumpyParser
+from pydoctest.parsers.sphinx_parser import SphinxParser
 
 
 class Verbosity(IntEnum):
@@ -18,8 +19,8 @@ class Verbosity(IntEnum):
 
 PARSERS = {
     'google': GoogleParser,
-    # 'numpy': NumpyParser
-    # To be populated
+    'numpy': NumpyParser,
+    'sphinx': SphinxParser
 }
 
 

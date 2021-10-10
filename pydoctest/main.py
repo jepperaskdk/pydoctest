@@ -223,6 +223,7 @@ def main() -> None:  # pragma: no cover
     parser.add_argument("--debug", help="Verbose logging", action='store_true')
     parser.add_argument("--version", help="Show version", action='store_true')
     parser.add_argument("--file", help="Analyze single file")
+    parser.add_argument("--parser", help="Docstring format, either: google|sphinx|numpy")
     args = parser.parse_args()
 
     try:
@@ -242,6 +243,9 @@ def main() -> None:  # pragma: no cover
 
         if args.verbosity:
             config.verbosity = Verbosity(int(args.verbosity))
+
+        if args.parser:
+            config.parser = args.parser
 
         # Check that parser exists before running.
         config.get_parser()

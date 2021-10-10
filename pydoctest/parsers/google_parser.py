@@ -22,21 +22,24 @@ class GoogleParser(Parser):
         if 'Raises:' not in doc:
             return []
 
-        _, tail = doc.split('Raises:')
+        try:
+            _, tail = doc.split('Raises:')
 
-        if 'Returns:' in tail:
-            exceptions, returns = tail.split('Returns:')
-        else:
-            exceptions = tail
-
-        exceptions_raised: List[str] = []
-        for exc_line in [x.strip() for x in exceptions.split("\n") if x]:
-            if ':' in exc_line:
-                exceptions_raised.append(exc_line.split(":")[0])
+            if 'Returns:' in tail:
+                exceptions, returns = tail.split('Returns:')
             else:
-                raise ParseException(exc_line)
+                exceptions = tail
 
-        return exceptions_raised
+            exceptions_raised: List[str] = []
+            for exc_line in [x.strip() for x in exceptions.split("\n") if x]:
+                if ':' in exc_line:
+                    exceptions_raised.append(exc_line.split(":")[0])
+                else:
+                    raise ParseException(exc_line)
+
+            return exceptions_raised
+        except Exception:
+            raise ParseException()
 
     def get_summary(self, doc: str, module_type: ModuleType) -> Optional[str]:
         """Returns the summary part of the docstring.
@@ -48,16 +51,20 @@ class GoogleParser(Parser):
         Returns:
             Optional[str]: The summary, if it exists.
         """
-        for needle in [ 'Args:', 'Raises:', 'Returns:' ]:
-            if needle in doc:
-                summ, _ = doc.split(needle)
-                summary = summ.strip()
-                return summary if len(summary) > 0 else None
+        try:
+            for needle in [ 'Args:', 'Raises:', 'Returns:' ]:
+                if needle in doc:
+                    summ, _ = doc.split(needle)
+                    summary = summ.strip()
+                    return summary if len(summary) > 0 else None
 
-        if len(doc) > 0:
-            return doc.strip()
+            if len(doc) > 0:
+                return doc.strip()
 
-        return None
+            return None
+
+        except Exception:
+            raise ParseException()
 
     def get_parameters(self, doc: str, module_type: ModuleType) -> List[Parameter]:
         """Finds the function arguments as strings, and returns their types as Parameter instances.
@@ -100,6 +107,8 @@ class GoogleParser(Parser):
                 parameters.append(Parameter(docname, located_type.type))
             except ValueError:
                 raise ParseException(arg_string)
+            except Exception:
+                raise ParseException(arg_string)
         return parameters
 
     def get_return_type(self, doc: str, module_type: ModuleType) -> Type:
@@ -115,13 +124,16 @@ class GoogleParser(Parser):
         Returns:
             Type: The return type parsed from the docs.
         """
-        if 'Returns:' not in doc:
-            return type(None)
-
-        _, returns = doc.split("Returns:")
         try:
-            doctype, _ = returns.strip().split(":")
-        except ValueError:
-            raise ParseException(returns)
+            if 'Returns:' not in doc:
+                return type(None)
 
-        return get_type_from_module(doctype, module_type).type
+            _, returns = doc.split("Returns:")
+            try:
+                doctype, _ = returns.strip().split(":")
+            except ValueError:
+                raise ParseException(returns)
+
+            return get_type_from_module(doctype, module_type).type
+        except Exception:
+            raise ParseException()

@@ -124,4 +124,6 @@ def get_exceptions_raised(fn: FunctionType, module: ModuleType) -> List[str]:
 
     visitor = RaiseVisitor()
     visitor.generic_visit(tree)
-    return visitor.nodes
+
+    # Make sure we dont return duplicate exceptions
+    return list(set(visitor.nodes))

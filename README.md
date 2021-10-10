@@ -59,12 +59,12 @@ Docstring format can be specified with the `--parser` argument:
 
     $ pydoctest --parser google
 
-Currently, only google is supported.
+Currently, only google, numpy and sphinx are supported.
 
 Full list of arguments:
 - "include_paths": [ List of strings ]  # Pattern to search modules with.
 - "verbosity": [ 0 | 1 | 2 ]  # How much to print, 0 = quiet, 1 = show failed, 2 = show all
-- "parser": [ "google" (default) ]  # Docstring format to use. Please raise an issue if you need other formats implemented.
+- "parser": [ "google" (default) | "sphinx" | "numpy" ]  # Docstring format to use. Please raise an issue if you need other formats implemented.
 - "fail_on_missing_docstring": [ true | false (default) ]  # Mark a function as failed, if it does not have a docstring
 - "fail_on_missing_summary": [ true | false (default) ]  # Mark a function as failed, if it does have a docstring, but no summary.
 - "fail_on_raises_section": [ true (default) | false ]  # Mark a function as failed, if docstring doesn't mention raised exceptions correctly.
