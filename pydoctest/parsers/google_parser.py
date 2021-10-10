@@ -48,6 +48,9 @@ class GoogleParser(Parser):
             doc (str): The docstring to analyze.
             module_type (ModuleType): The module it was extracted from.
 
+        Raises:
+            ParseException: If unable to parse an argument-line.
+
         Returns:
             Optional[str]: The summary, if it exists.
         """
