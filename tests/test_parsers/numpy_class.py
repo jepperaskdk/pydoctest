@@ -1,5 +1,3 @@
-# TODO: Convert google format below to numpy.
-# TODO: Cover multiple returns in one docstring
 
 def failing_global_function(a: int) -> int:
     """[summary]

@@ -15,12 +15,6 @@ class TestSphinxParser():
         with pytest.raises(ParseException) as exc_info:
             parser.get_parameters(doc, tests.test_parsers.sphinx_class)
 
-    def test_parse_exception_get_return_type(self) -> None:
-        parser = SphinxParser()
-        doc = pydoc.getdoc(tests.test_parsers.sphinx_class.IncorrectTestClass.func_parse_exception)
-        with pytest.raises(ParseException) as exc_info:
-            parser.get_return_type(doc, tests.test_parsers.sphinx_class)
-
     def test_empty_func(self) -> None:
         parser = SphinxParser()
         doc = pydoc.getdoc(tests.test_parsers.sphinx_class.CorrectTestClass.empty_func)
@@ -43,15 +37,6 @@ class TestSphinxParser():
     def test_func_returns_int(self) -> None:
         parser = SphinxParser()
         doc = pydoc.getdoc(tests.test_parsers.sphinx_class.CorrectTestClass.func_returns_int)
-        arguments = parser.get_parameters(doc, tests.test_parsers.sphinx_class)
-        assert len(arguments) == 0, f"SphinxParser failed assertion"
-
-        return_type = parser.get_return_type(doc, tests.test_parsers.sphinx_class)
-        assert return_type == int, f"SphinxParser failed assertion"
-
-    def test_func_returns_int_name_type(self) -> None:
-        parser = SphinxParser()
-        doc = pydoc.getdoc(tests.test_parsers.sphinx_class.CorrectTestClass.func_returns_int_name_type)
         arguments = parser.get_parameters(doc, tests.test_parsers.sphinx_class)
         assert len(arguments) == 0, f"SphinxParser failed assertion"
 
@@ -94,8 +79,16 @@ class TestSphinxParser():
 
         summary = parser.get_summary(doc, tests.test_parsers.sphinx_class)
         assert summary is not None
-        assert len(summary) > 0, f"SphinxParser failed assertion"
-        assert(len([x for x in summary if x == '\n']) > 1), f"SphinxParser failed assertion"
+        assert summary == """Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Mauris tellus diam, iaculis et nisl sit amet, tristique sodales massa.
+Proin lacinia faucibus ex a scelerisque. Fusce mauris orci, finibus a cursus vitae, luctus sit amet erat.
+Ut dignissim elit nec nisi faucibus lobortis.
+Proin varius mi lectus, at gravida nisl dapibus et. Nunc ac sagittis sapien.
+Praesent tincidunt ac tellus ut mollis. Integer tincidunt pretium diam, quis aliquet turpis volutpat quis.
+Nulla at est facilisis, scelerisque ipsum in, interdum dolor. Vivamus fermentum placerat mattis.
+Ut nec augue nec ex sodales ornare vel sit amet urna. Nunc scelerisque risus nisi, quis pharetra nibh fermentum auctor.
+Donec ultrices lectus eu mauris lacinia, nec tincidunt tortor facilisis.
+Sed condimentum elit non metus sagittis tempor. Cras mollis lacus lacus, vitae placerat quam laoreet id.""", f"SphinxParser failed assertion"
 
     def test_get_summary_empty_summary(self) -> None:
         parser = SphinxParser()
