@@ -18,6 +18,9 @@ class SphinxParser(Parser):
     def __init__(self) -> None:
         """Parser for Sphinx docstring style."""
         super().__init__()
+        self.parameter_name_regex = re.compile(":param\s+(\w+):")
+        self.parameter_type_regex = re.compile(":rtype:\s*(\w+)")
+        self.return_type_regex = re.compile(":rtype:\s*(\w+)")
 
     def get_exceptions_raised(self, doc: str) -> List[str]:
         """Returns the exceptions listed as raised in the docstring.
@@ -68,7 +71,13 @@ class SphinxParser(Parser):
             List[Parameter]: The parameters parsed from the docstring.
         """
         try:
-            raise NotImplementedError()
+            lines = doc.split('\n')
+            var_name: Optional[str] = None
+            for line in lines:
+                if var_name is None:
+                    match = self.parameter_name_regex.match(line)
+                else:
+                    match = self.parameter_type_regex.match(line)
         except Exception:
             raise ParseException()
 
@@ -86,6 +95,10 @@ class SphinxParser(Parser):
             Type: The return type parsed from the docs.
         """
         try:
-            raise NotImplementedError()
+            match = self.return_type_regex.match(doc)
+            if match is None:
+                raise ParseException()
+            doctype = match.group()
+            return get_type_from_module(doctype, module_type).type
         except Exception:
             raise ParseException()

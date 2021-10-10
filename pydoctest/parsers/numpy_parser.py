@@ -152,7 +152,11 @@ class NumpyParser(Parser):
 
             # Test for line with name/type combo
             if ':' in returns_line:
-                name, doctype = self.returns_with_name_regex.match(returns_line).groups()
+                match = self.returns_with_name_regex.match(returns_line)
+                if match is not None:
+                    name, doctype = match.groups()
+                else:
+                    raise ParseException()
             else:
                 doctype = returns_line.rstrip('\n')
 
