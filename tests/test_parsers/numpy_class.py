@@ -1,3 +1,5 @@
+from typing import Any, Dict
+
 
 def failing_global_function(a: int) -> int:
     """[summary]
@@ -137,6 +139,22 @@ class IncorrectTestClass():
 
 
 class CorrectTestClass():
+
+    def func_with_generics(self, a_a: Dict[str, Any]) -> Dict[str, Any]:
+        """[summary]
+
+        Parameters
+        ----------
+        a_a : Dict[str, Any]
+            [description]
+
+        Returns
+        -------
+        Dict[str, Any]
+            [description]
+        """
+        pass
+
     def empty_func(self) -> None:
         """Empty func
         """

@@ -1,4 +1,5 @@
 import pydoc
+from typing import Dict, Any
 import pytest
 
 from pydoctest.parsers.sphinx_parser import SphinxParser
@@ -139,3 +140,14 @@ Sed condimentum elit non metus sagittis tempor. Cras mollis lacus lacus, vitae p
 
         intersection = set(expected_exceptions) - set(actual_exceptions)
         assert len(intersection) == 0
+
+    def test_func_with_generics(self) -> None:
+        parser = SphinxParser()
+        doc = pydoc.getdoc(tests.test_parsers.sphinx_class.CorrectTestClass.func_with_generics)
+        parameters = parser.get_parameters(doc, tests.test_parsers.sphinx_class)
+        assert len(parameters) == 1
+        assert parameters[0].type == Dict[str, Any]
+        assert parameters[0].name == 'a_a'
+
+        return_type = parser.get_return_type(doc, tests.test_parsers.sphinx_class)
+        assert return_type == Dict[str, Any]

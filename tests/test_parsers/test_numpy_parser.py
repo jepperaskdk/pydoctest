@@ -1,4 +1,5 @@
 import pydoc
+from typing import Any, Dict
 import pytest
 
 from pydoctest.parsers.numpy_parser import NumpyParser
@@ -146,3 +147,14 @@ class TestNumpyParser():
 
         intersection = set(expected_exceptions) - set(actual_exceptions)
         assert len(intersection) == 0
+
+    def test_func_with_generics(self) -> None:
+        parser = NumpyParser()
+        doc = pydoc.getdoc(tests.test_parsers.numpy_class.CorrectTestClass.func_with_generics)
+        parameters = parser.get_parameters(doc, tests.test_parsers.numpy_class)
+        assert len(parameters) == 1
+        assert parameters[0].type == Dict[str, Any]
+        assert parameters[0].name == 'a_a'
+
+        return_type = parser.get_return_type(doc, tests.test_parsers.numpy_class)
+        assert return_type == Dict[str, Any]
