@@ -27,8 +27,8 @@ class NumpyParser(Parser):
         ]
         # Split by word, newline, a number of '-' and newline
         self.section_regex = re.compile("([a-zA-Z]+)\n[-]+\n")
-        self.parameter_regex = re.compile(r"(\w+)\s*:\s*(\w+)")
-        self.returns_with_name_regex = re.compile(r"(\w+)\s*:\s*(\w+)")
+        self.parameter_regex = re.compile(r"(\w+)\s*:\s*([\w\[\], ]+)")
+        self.returns_with_name_regex = re.compile(r"(\w+)\s*:\s*([\w\[\], ]+)")
 
     def get_exceptions_raised(self, doc: str) -> List[str]:
         """Returns the exceptions listed as raised in the docstring.

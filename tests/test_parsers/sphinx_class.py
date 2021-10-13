@@ -1,3 +1,4 @@
+from typing import Any, Dict
 
 
 def failing_global_function(a: int) -> int:
@@ -105,6 +106,16 @@ class IncorrectTestClass():
 
 
 class CorrectTestClass():
+    def func_with_generics(self, a_a: Dict[str, Any]) -> Dict[str, Any]:
+        """[summary]
+
+        :param a_a: [description]
+        :type a_a: Dict[str, Any]
+        :return: [description]
+        :rtype: Dict[str, Any]
+        """
+        pass
+
     def empty_func(self) -> None:
         """Empty func
         """
