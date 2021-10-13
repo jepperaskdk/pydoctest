@@ -18,7 +18,7 @@ class SphinxParser(Parser):
     def __init__(self) -> None:
         """Parser for Sphinx docstring style."""
         super().__init__()
-        self.parameter_name_regex = re.compile(r":param\s+([\w_]+):")
+        self.parameter_name_regex = re.compile(r":param\s+(\w+):")
         self.parameter_type_regex = re.compile(r":type\s+\w+:\s*([\w\[\], ]+)")
         self.return_type_regex = re.compile(r":rtype:\s*([\w\[\], ]+)")
         self.raises_regex = re.compile(r":raises\s+(\w+):")
