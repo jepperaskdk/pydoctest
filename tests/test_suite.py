@@ -1,8 +1,22 @@
 import subprocess
+import sys
 
 from typing import Tuple
 from pydoctest.configuration import Configuration
 from pydoctest.main import PyDoctestService
+from enum import Enum
+
+
+class OS(Enum):
+    WINDOWS = 0,
+    LINUX = 1
+
+
+def get_os() -> OS:
+    if sys.platform == 'win32':
+        return OS.WINDOWS
+    else:
+        return OS.LINUX
 
 
 class TestPydoctest():
@@ -21,7 +35,13 @@ class TestPydoctest():
 class TestCase():
     def execute_command(self, command: str) -> Tuple[str, str]:
         try:
-            p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env={'LC_ALL': 'C'})
+            if get_os() == OS.WINDOWS:
+                # Figure out a more robust way to handle OS
+                if command.startswith('python3 '):
+                    command = command.replace('python3', 'py', 1)
+                p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            else:
+                p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env={'LC_ALL': 'C'})
             p.wait()
             stdout, stderr = p.communicate()
             return str(stdout.decode("utf-8")), str(stderr.decode("utf-8"))

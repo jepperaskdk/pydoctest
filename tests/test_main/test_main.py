@@ -14,7 +14,15 @@ class TestMain():
         ds = PyDoctestService(config)
         result = ds.validate()
         assert result.module_results[0].result == ResultType.NOT_RUN
-        assert "Failed to load spec from file location" in result.module_results[0].fail_reason
+        assert "Failed to load file from location" in result.module_results[0].fail_reason
+
+    def test_invalid_python_module(self) -> None:
+        config = Configuration.get_configuration_from_path("tests/test_main/pydoctest.json")
+
+        ds = PyDoctestService(config)
+        result = ds.validate()
+        assert result.module_results[0].result == ResultType.NOT_RUN
+        assert "Failed to load file from location" in result.module_results[0].fail_reason
 
 
 class TestGetConfiguration():
@@ -23,14 +31,14 @@ class TestGetConfiguration():
         assert config.working_directory.replace("\\", "/").endswith("tests/test_main")
 
         # Used by another test, but we use it to verify we found the right pydoctest.json
-        assert config.include_paths == [ "notpythonmodule", "notproperpython.py" ]
+        assert config.include_paths == [ "notpythonmodule", "notproperpython.py", "non_valid_module.py" ]
 
     def test_get_configuration_with_config_path(self) -> None:
         config = get_configuration("this is ignored", "tests/test_main/pydoctest.json")
         assert config.working_directory.replace("\\", "/").endswith("tests/test_main")
 
         # Used by another test, but we use it to verify we found the right pydoctest.json
-        assert config.include_paths == [ "notpythonmodule", "notproperpython.py" ]
+        assert config.include_paths == [ "notpythonmodule", "notproperpython.py", "non_valid_module.py" ]
 
     def test_get_configuration_with_no_config(self) -> None:
         config = get_configuration("tests/test_main/no_config_here")
