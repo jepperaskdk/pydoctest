@@ -34,6 +34,9 @@ class TextReporter(Reporter):
             str: The output of the module.
         """
         output = ""
+        if result.fail_reason != "":
+            output = f"{result.fail_reason}\n"
+
         for f_r in result.function_results:
             output += self.get_function_output(f_r)
 

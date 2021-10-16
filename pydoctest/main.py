@@ -82,9 +82,9 @@ class PyDoctestService():
         module_name = os.path.basename(module_path)
         module_spec: Optional[ModuleSpec] = importlib.util.spec_from_file_location(module_name, module_path)
 
-        if module_spec is None or not isinstance(module_spec.loader, Loader):
+        if not os.path.exists(module_path) or module_spec is None or not isinstance(module_spec.loader, Loader):
             result.result = ResultType.NOT_RUN
-            result.fail_reason = f"Failed to load spec from file location: {module_path}"
+            result.fail_reason = f"Failed to load file from location: {module_path}"
             return result
 
         try:
@@ -92,7 +92,7 @@ class PyDoctestService():
             module_spec.loader.exec_module(module_type)
         except Exception as e:
             result.result = ResultType.FAILED
-            result.fail_reason = f"Failed to load module: {module_path}"
+            result.fail_reason = f"Failed to load module (possibly due to syntax errors): {module_path}"
             return result
 
         # Validate top-level functions in module
