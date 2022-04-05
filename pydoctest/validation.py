@@ -90,13 +90,15 @@ class Result():
 
 
 class FunctionValidationResult(Result):
-    def __init__(self, function: FunctionType) -> None:
+    def __init__(self, function: FunctionType, module: ModuleType) -> None:
         """Result class for storing results of testing functions.
 
         Args:
             function (FunctionType): A reference to the function that was tested.
+            module (ModuleType): The module containing the function - used when outputting text results to identify the file.
         """
         super().__init__()
+        self.module = module
         self.function = function
         self.range: Optional[Range] = None
 
@@ -229,6 +231,10 @@ def __get_docstring_range(fn: FunctionType, module_type: ModuleType, docstring: 
     lines, line_number = inspect.getsourcelines(fn)
     start_line, end_line = -1, -1
     for i, l in enumerate(lines):
+        if l.count('"""') == 2:
+            # One liner
+            return Range(line_number + i, line_number + i, 0, 0)
+
         if '"""' in l:
             if start_line == -1:
                 start_line = line_number + i
@@ -250,7 +256,7 @@ def validate_function(fn: FunctionType, config: Configuration, module_type: Modu
         FunctionValidationResult: The result of validating this function.
     """
     log(f"Validating function: {fn}")
-    result = FunctionValidationResult(fn)
+    result = FunctionValidationResult(fn, module_type)
 
     doc = inspect.getdoc(fn)
     if not doc:
@@ -316,19 +322,25 @@ def validate_function(fn: FunctionType, config: Configuration, module_type: Modu
 
     # Validate exceptions raised
     if config.fail_on_raises_section:
-        sig_exceptions = get_exceptions_raised(fn, module_type)
-        doc_exceptions = parser.get_exceptions_raised(doc)
+        try:
+            sig_exceptions = get_exceptions_raised(fn, module_type)
+            doc_exceptions = parser.get_exceptions_raised(doc)
 
-        if len(sig_exceptions) != len(doc_exceptions):
-            result.result = ResultType.FAILED
-            result.fail_reason = f"Number of listed raised exceptions does not match actual. Doc: {doc_exceptions}, expected: {sig_exceptions}"
-            result.range = __get_docstring_range(fn, module_type, doc)
-            return result
+            if len(sig_exceptions) != len(doc_exceptions):
+                result.result = ResultType.FAILED
+                result.fail_reason = f"Number of listed raised exceptions does not match actual. Doc: {doc_exceptions}, expected: {sig_exceptions}"
+                result.range = __get_docstring_range(fn, module_type, doc)
+                return result
 
-        intersection = set(sig_exceptions) - set(doc_exceptions)
-        if len(intersection) > 0:
+            intersection = set(sig_exceptions) - set(doc_exceptions)
+            if len(intersection) > 0:
+                result.result = ResultType.FAILED
+                result.fail_reason = f"Listed raised exceptions does not match actual. Docstring: {doc_exceptions}, expected: {sig_exceptions}"
+                result.range = __get_docstring_range(fn, module_type, doc)
+                return result
+        except ParseException as e:
             result.result = ResultType.FAILED
-            result.fail_reason = f"Listed raised exceptions does not match actual. Docstring: {doc_exceptions}, expected: {sig_exceptions}"
+            result.fail_reason = f"Unable to parse docstring: {str(e)}"
             result.range = __get_docstring_range(fn, module_type, doc)
             return result
 

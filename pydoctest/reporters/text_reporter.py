@@ -1,4 +1,4 @@
-from pydoctest.configuration import Configuration, Verbosity
+from pydoctest.configuration import Verbosity
 from pydoctest.reporters.reporter import Reporter
 from pydoctest.validation import ClassValidationResult, FunctionValidationResult, ModuleValidationResult, ResultType, ValidationResult
 
@@ -54,16 +54,23 @@ class TextReporter(Reporter):
         Returns:
             str: The output from the function.
         """
+        result.module.__file__
+        try:
+            # Try to get just workspace relative path
+            module = result.module.__file__.replace(self.config.working_directory + "/", "")
+        except Exception:
+            pass
+        function_name = result.function.__name__
         if result.result == ResultType.OK:
             if self.config.verbosity == Verbosity.SHOW_ALL:
-                return f"Function: {result.function} {SUCCESS}\n"
+                return f"{module}::{function_name} {SUCCESS}\n"
             return ""
 
         if result.result == ResultType.FAILED:
-            return f"Function: {result.function} {FAILED} | {result.fail_reason}\n"
+            return f"{module}::{function_name} {FAILED} | {result.fail_reason}\n"
 
         if result.result == ResultType.NO_DOC and self.config.fail_on_missing_docstring:
-            return f"Function: {result.function} is missing a docstring\n"
+            return f"{module}::{function_name} is missing a docstring\n"
 
         return ""
 
