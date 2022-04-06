@@ -17,7 +17,7 @@ class TestMain(TestCase):
     def test_verbosity_1_argument(self) -> None:
         out, err = self.execute_command('python3 -m pydoctest.main --config tests/test_cli/pydoctest.json --verbosity 1')
         assert 'function ExampleCLIClass' not in out
-        assert 'Succeeded: 1, Failed: 0, Skipped: 0' in out
+        assert 'Succeeded: 2, Failed: 0, Skipped: 0' in out
         assert len(err) == 0
 
     def test_reporter_json_argument(self) -> None:
