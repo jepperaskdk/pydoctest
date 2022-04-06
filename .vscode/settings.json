@@ -1,10 +1,10 @@
 {
     "python.testing.pytestEnabled": true,
-    "python.testing.nosetestsEnabled": false,
     "python.testing.unittestEnabled": false,
     "python.linting.pycodestyleEnabled": true,
     "python.linting.pycodestyleArgs": [
         "--max-line-length=99999",
         "--ignore=E201, E202"
-    ]
+    ],
+    "python.linting.mypyEnabled": true
 }

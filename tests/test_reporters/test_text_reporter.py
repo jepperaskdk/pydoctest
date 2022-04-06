@@ -1,9 +1,14 @@
-import inspect
-from types import FunctionType
-from typing import Optional, Type, cast
+from types import FunctionType, ModuleType
+from typing import Optional, cast
 from pydoctest.validation import ClassValidationResult, FunctionValidationResult, ModuleValidationResult, ResultType, ValidationResult
 from pydoctest.configuration import Configuration, Verbosity
 from pydoctest.reporters.text_reporter import TextReporter
+
+
+def get_mock_module() -> ModuleType:
+    module = ModuleType("ModuleName")
+    module.__file__ = '/foo/bar/module_name.py'
+    return module
 
 
 def get_result_object(result_type: ResultType, fail_reason: Optional[str] = None) -> ValidationResult:
@@ -17,7 +22,7 @@ def get_result_object(result_type: ResultType, fail_reason: Optional[str] = None
     result.result = result_type
     result.module_results = [ModuleValidationResult("ModulePath")]
     result.module_results[0].result = result_type
-    result.module_results[0].function_results = [FunctionValidationResult(cast(FunctionType, FunctionName))]
+    result.module_results[0].function_results = [FunctionValidationResult(cast(FunctionType, FunctionName), get_mock_module())]
     result.module_results[0].function_results[0].result = result_type
     if fail_reason:
         result.module_results[0].function_results[0].fail_reason = fail_reason
@@ -27,7 +32,7 @@ def get_result_object(result_type: ResultType, fail_reason: Optional[str] = None
     if fail_reason:
         result.module_results[0].class_results[0].fail_reason = fail_reason
 
-    result.module_results[0].class_results[0].function_results = [FunctionValidationResult(cast(FunctionType, MethodName))]
+    result.module_results[0].class_results[0].function_results = [FunctionValidationResult(cast(FunctionType, MethodName), get_mock_module())]
     result.module_results[0].class_results[0].function_results[0].result = result_type
     if fail_reason:
         result.module_results[0].class_results[0].function_results[0].fail_reason = fail_reason
@@ -52,7 +57,7 @@ class TestTextReporter():
 
         result = get_result_object(ResultType.OK)
         output = reporter.get_output(result)
-        messages = [m for m in output.split("Function:") if m]
+        messages = [m for m in output.split("\n") if m]
 
         assert 'FunctionName' in messages[0]
         assert 'OK' in messages[0]
@@ -67,7 +72,7 @@ class TestTextReporter():
 
         result = get_result_object(ResultType.FAILED, "FAIL REASON")
         output = reporter.get_output(result)
-        messages = [m for m in output.split("Function:") if m]
+        messages = [m for m in output.split("\n") if m]
 
         assert 'FunctionName' in messages[0]
         assert 'FAIL | FAIL REASON' in messages[0]
@@ -94,7 +99,7 @@ class TestTextReporter():
         result = get_result_object(ResultType.NO_DOC)
         output = reporter.get_output(result)
 
-        messages = [m for m in output.split("Function:") if m]
+        messages = [m for m in output.split("\n") if m]
         assert 'FunctionName' in messages[0]
         assert 'is missing a docstring' in messages[0]
 
