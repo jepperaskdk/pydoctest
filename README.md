@@ -93,6 +93,7 @@ Editor support
 -------
 Currently `pydoctest` is supported by `vscode`: https://github.com/jepperaskdk/vscode-pydoctest
 
+![example_file_vscode](https://user-images.githubusercontent.com/10128260/162623354-b8596f89-f29b-467d-9376-ef9e2f277e7b.gif)
 
 License
 -------
