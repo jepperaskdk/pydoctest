@@ -69,6 +69,31 @@ Full list of arguments:
 - "fail_on_missing_summary": [ true | false (default) ]  # Mark a function as failed, if it does have a docstring, but no summary.
 - "fail_on_raises_section": [ true (default) | false ]  # Mark a function as failed, if docstring doesn't mention raised exceptions correctly.
 
+Example
+-------
+```
+# example_file.py
+def func_type_mismatch(self, a: int) -> int:
+    """[summary]
+
+    Args:
+        a (float): [description]        <-- float is not int
+
+    Returns:
+        int: [description]
+    """
+    pass
+
+# /example_file.py::func_type_mismatch FAIL | Argument type differ. Argument 'a' was expected (from signature) to have type '<class 'int'>', but has (in docs) type '<class 'float'>'
+Tested 1 function(s) across 1 module(s).
+Succeeded: 0, Failed: 1, Skipped: 0
+```
+
+Editor support
+-------
+Currently `pydoctest` is supported by `vscode`: https://github.com/jepperaskdk/vscode-pydoctest
+
+
 License
 -------
 
