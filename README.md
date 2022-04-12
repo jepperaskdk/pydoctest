@@ -1,9 +1,9 @@
 pydoctest: docstring signature verification
 =======================================
-![example workflow](https://github.com/jepperaskdk/pydoctest/actions/workflows/python-package.yml/badge.svg)
-[![codecov](https://codecov.io/gh/jepperaskdk/pydoctest/branch/main/graph/badge.svg?token=NSOW53NY9R)](https://codecov.io/gh/jepperaskdk/pydoctest)
 [![PyPI version pydoctest](https://badge.fury.io/py/pydoctest.svg)](https://pypi.python.org/pypi/pydoctest/)
-
+![example workflow](https://github.com/jepperaskdk/pydoctest/actions/workflows/python-package.yml/badge.svg)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/pydoctest)
+[![codecov](https://codecov.io/gh/jepperaskdk/pydoctest/branch/main/graph/badge.svg?token=NSOW53NY9R)](https://codecov.io/gh/jepperaskdk/pydoctest)
 
 File issues here: [Issues tracker](https://github.com/jepperaskdk/pydoctest/issues)
 
