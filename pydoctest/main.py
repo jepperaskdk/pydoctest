@@ -128,7 +128,10 @@ class PyDoctestService():
         """
         fns = []
         for name, obj in inspect.getmembers(module, lambda x: inspect.isfunction(x) and x.__module__ == module.__name__):
-            fns.append(obj)
+            if self.config.exclude_private_functions and name.startswith("_"):
+                pass
+            else:
+                fns.append(obj)
         return fns
 
     def get_classes(self, module: ModuleType) -> List[Type]:

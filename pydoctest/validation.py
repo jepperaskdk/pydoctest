@@ -367,6 +367,8 @@ def validate_class(class_instance: Any, config: Configuration, module_type: Modu
         if inspect.isfunction(item) and item.__module__ == module_type.__name__:
             if name not in class_instance.__dict__ or item != class_instance.__dict__[name]:
                 continue
+            if config.exclude_private_methods and name.startswith("_"):
+                continue
             function_result = validate_function(item, config, module_type)
             if function_result.result == ResultType.FAILED:
                 class_result.result = ResultType.FAILED

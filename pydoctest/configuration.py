@@ -49,6 +49,12 @@ class Configuration():
         # Throw an error if 'raises' section does not list all exceptions
         self.fail_on_raises_section = True
 
+        # Exclude private functions that start with underscore
+        self.exclude_private_functions = False
+
+        # Exclude private class methods that start with underscore
+        self.exclude_private_methods = False
+
     @staticmethod
     def get_default_configuration(root_dir: Optional[str] = None) -> 'Configuration':
         """Returns a configuration with default values.
