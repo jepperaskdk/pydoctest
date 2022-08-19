@@ -49,6 +49,9 @@ class Configuration():
         # Throw an error if 'raises' section does not list all exceptions
         self.fail_on_raises_section = True
 
+        # Exclude classes
+        self.exclude_classes = False
+
     @staticmethod
     def get_default_configuration(root_dir: Optional[str] = None) -> 'Configuration':
         """Returns a configuration with default values.

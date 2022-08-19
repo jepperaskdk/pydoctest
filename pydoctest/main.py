@@ -108,12 +108,13 @@ class PyDoctestService():
             result.function_results.append(function_result)
 
         # Validate top-level classes in module
-        classes = self.get_classes(module_type)
-        for cl in classes:
-            class_result = validate_class(cl, self.config, module_type)
-            if class_result.result == ResultType.FAILED:
-                result.result = ResultType.FAILED
-            result.class_results.append(class_result)
+        if not self.config.exclude_classes:
+            classes = self.get_classes(module_type)
+            for cl in classes:
+                class_result = validate_class(cl, self.config, module_type)
+                if class_result.result == ResultType.FAILED:
+                    result.result = ResultType.FAILED
+                result.class_results.append(class_result)
 
         return result
 
