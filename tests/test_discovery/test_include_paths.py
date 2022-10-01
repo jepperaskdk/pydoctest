@@ -40,11 +40,11 @@ class TestIncludePaths():
         config.include_paths = ["a/file_a_*.py"]
         service = PyDoctestService(config)
         modules = service.discover_modules()
+        modules_sorted = sorted(modules)
 
         assert len(modules) == 2
-        print(modules)
-        assert modules[0].endswith('file_a_1.py')
-        assert modules[1].endswith('file_a_2.py')
+        assert modules_sorted[0].endswith('file_a_1.py')
+        assert modules_sorted[1].endswith('file_a_2.py')
 
     def test_include_paths_recursive_single_file(self) -> None:
         """
@@ -55,11 +55,12 @@ class TestIncludePaths():
         config.include_paths = ["c/**/file_c.py"]
         service = PyDoctestService(config)
         modules = service.discover_modules()
+        modules_sorted = sorted(modules)
 
         assert len(modules) == 3
-        assert modules[0].endswith('c/file_c.py')
-        assert modules[1].endswith('c/subdirectory/file_c.py')
-        assert modules[2].endswith('c/subdirectory/subsubdirectory/file_c.py')
+        assert modules_sorted[0].endswith('c/file_c.py')
+        assert modules_sorted[1].endswith('c/subdirectory/file_c.py')
+        assert modules_sorted[2].endswith('c/subdirectory/subsubdirectory/file_c.py')
 
     def test_include_paths_recursive_wildcard(self) -> None:
         """
