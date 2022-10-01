@@ -2,7 +2,7 @@ from enum import Enum
 import sys
 import os
 import argparse
-import glob
+import pathlib
 import inspect
 import traceback
 
@@ -24,7 +24,8 @@ from pydoctest.validation import ModuleValidationResult, Result, ResultType, Val
 
 
 CONFIG_FILE_NAME = 'pydoctest.json'
-IGNORE_FILES = [ '__init__.py', 'setup.py' ]
+DEFAULT_EXCLUDE_PATHS = [ '**/__init__.py', '**/setup.py' ]
+DEFAULT_INCLUDE_PATHS = [ '**/*.py' ]
 REPORTERS = {
     'json': JSONReporter,
     'text': TextReporter
@@ -96,7 +97,7 @@ class PyDoctestService():
             return result
         except Exception as e:
             result.result = ResultType.FAILED
-            result.fail_reason = f"Failed to load module (possibly due to syntax errors): {module_path}"
+            result.fail_reason = f"Failed to load module (possibly due to syntax errors): {module_path} - error: {str(e)}"
             return result
 
         # Validate top-level functions in module
@@ -149,23 +150,40 @@ class PyDoctestService():
             classes.append(obj)
         return classes
 
+    def __is_excluded_path(self, path: pathlib.Path, exclude_paths: List[str]) -> bool:
+        """
+        Returns whether the found path is excluded by any of the exclude_paths.
+
+        Args:
+            path (pathlib.Path): The path to test
+            exclude_paths (List[str]): The exclude paths
+
+        Returns:
+            bool: If path excluded.
+        """
+        return any(path.match(e_p) for e_p in exclude_paths)
+
     def discover_modules(self) -> List[str]:
         """Discovers modules using the configuration include/exclude paths.
 
         Returns:
             List[str]: A list of paths to modules to be validated.
         """
-        include_file_paths = []
+        include_file_paths: List[str] = []
 
-        paths = self.config.include_paths
-        if len(paths) == 0:
-            paths = [ "*.py" ]
+        include_paths = self.config.include_paths
+        exclude_paths = self.config.exclude_paths
 
-        for path in paths:
-            include_path = os.path.join(self.config.working_directory, path)
-            # Remove IGNORE_FILES until we know what to do with them
-            # TODO: Implement exclude_paths. Test with fnmatch so we don't have to glob all exclude files?
-            include_file_paths.extend([p for p in glob.glob(include_path) if not any([p.endswith(k) for k in IGNORE_FILES])])
+        if len(include_paths) == 0:
+            include_paths = DEFAULT_INCLUDE_PATHS
+        if len(exclude_paths) == 0:
+            exclude_paths = DEFAULT_EXCLUDE_PATHS
+
+        for include_path in include_paths:
+            path = pathlib.Path(self.config.working_directory)
+            disovered_paths = list(path.glob(include_path))
+            allowed_paths = [str(p) for p in disovered_paths if not self.__is_excluded_path(p, exclude_paths)]
+            include_file_paths.extend(allowed_paths)
 
         return include_file_paths
 
