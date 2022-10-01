@@ -21,11 +21,12 @@ from pydoctest.reporters.reporter import Reporter
 from pydoctest.reporters.json_reporter import JSONReporter
 from pydoctest.reporters.text_reporter import TextReporter
 from pydoctest.validation import ModuleValidationResult, Result, ResultType, ValidationResult, validate_class, validate_function
+from pydoctest.utilities import parse_cli_list
 
+# We always want to exclude setup.py
+DEFAULT_EXCLUDE_PATHS = [ "**/setup.py" ]
 
 CONFIG_FILE_NAME = 'pydoctest.json'
-DEFAULT_EXCLUDE_PATHS = [ '**/__init__.py', '**/setup.py' ]
-DEFAULT_INCLUDE_PATHS = [ '**/*.py' ]
 REPORTERS = {
     'json': JSONReporter,
     'text': TextReporter
@@ -159,7 +160,7 @@ class PyDoctestService():
             exclude_paths (List[str]): The exclude paths
 
         Returns:
-            bool: If path excluded.
+            bool: If path is excluded.
         """
         return any(path.match(e_p) for e_p in exclude_paths)
 
@@ -172,12 +173,7 @@ class PyDoctestService():
         include_file_paths: List[str] = []
 
         include_paths = self.config.include_paths
-        exclude_paths = self.config.exclude_paths
-
-        if len(include_paths) == 0:
-            include_paths = DEFAULT_INCLUDE_PATHS
-        if len(exclude_paths) == 0:
-            exclude_paths = DEFAULT_EXCLUDE_PATHS
+        exclude_paths = self.config.exclude_paths + DEFAULT_EXCLUDE_PATHS
 
         for include_path in include_paths:
             path = pathlib.Path(self.config.working_directory)
@@ -246,6 +242,11 @@ def main() -> None:  # pragma: no cover
     parser.add_argument("--version", help="Show version", action='store_true')
     parser.add_argument("--file", help="Analyze single file")
     parser.add_argument("--parser", help="Docstring format, either: google|sphinx|numpy")
+
+    # TODO: Implement splitting by comma and
+    parser.add_argument("--include-paths", help="Pattern to include paths by, defaults to \"**/*.py\"")
+    parser.add_argument("--exclude-paths", help="Pattern to exclude paths by, defaults to \"**/__init__.py, **/setup.py\"")
+
     args = parser.parse_args()
 
     try:
@@ -268,6 +269,12 @@ def main() -> None:  # pragma: no cover
 
         if args.parser:
             config.parser = args.parser
+
+        if args.include_paths:
+            config.include_paths = parse_cli_list(args.include_paths)
+
+        if args.exclude_paths:
+            config.exclude_paths = parse_cli_list(args.exclude_paths)
 
         # Check that parser exists before running.
         config.get_parser()

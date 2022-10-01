@@ -27,3 +27,19 @@ class TestMain(TestCase):
             assert d['result'] == ResultType.OK
         except JSONDecodeError as e:
             raise Exception("fail")
+
+    def test_include_paths_argument(self) -> None:
+        """
+        Tests that the '--include-paths' argument is parsed.
+        """
+        out, err = self.execute_command('python3 -m pydoctest.main --config tests/test_cli/pydoctest.json --reporter json --include-paths "*.py"')
+        output = json.loads(out)
+        assert len(output['module_results']) == 4
+
+    def test_include_exclude_paths_argument(self) -> None:
+        """
+        Tests that the '--exclude-paths' argument is parsed.
+        """
+        out, err = self.execute_command('python3 -m pydoctest.main --config tests/test_cli/pydoctest.json --reporter json --include-paths "*.py" --exclude-paths "**/excluded_class_cli.py"')
+        output = json.loads(out)
+        assert len(output['module_results']) == 3
