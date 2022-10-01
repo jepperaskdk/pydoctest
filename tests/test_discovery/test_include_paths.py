@@ -42,6 +42,7 @@ class TestIncludePaths():
         modules = service.discover_modules()
 
         assert len(modules) == 2
+        print(modules)
         assert modules[0].endswith('file_a_1.py')
         assert modules[1].endswith('file_a_2.py')
 
