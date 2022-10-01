@@ -1,7 +1,7 @@
 pydoctest: docstring signature verification
 =======================================
 [![PyPI version pydoctest](https://badge.fury.io/py/pydoctest.svg)](https://pypi.python.org/pypi/pydoctest/)
-![example workflow](https://github.com/jepperaskdk/pydoctest/actions/workflows/python-package.yml/badge.svg)
+![Tests](https://github.com/jepperaskdk/pydoctest/actions/workflows/python-package.yml/badge.svg)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/pydoctest)
 [![codecov](https://codecov.io/gh/jepperaskdk/pydoctest/branch/main/graph/badge.svg?token=NSOW53NY9R)](https://codecov.io/gh/jepperaskdk/pydoctest)
 
@@ -27,7 +27,7 @@ Navigate to your project location, and execute pydoctest
 
     $ pydoctest
 
-With no pydoctest.json configuration file, it will by default validate all \*.py files in the current directory. See the configuration section for options.
+With no pydoctest.json configuration file, it will by default validate all .py files recursively in the current directory (`**/*.py`). See the configuration section for options.
 If you get errors with modules not being found, try placing the pydoctest.json differently or executing inside the package.
 
 Output
@@ -61,13 +61,21 @@ Docstring format can be specified with the `--parser` argument:
 
 Currently, only google, numpy and sphinx are supported.
 
-Full list of arguments:
-- "include_paths": [ List of strings ]  # Pattern to search modules with.
-- "verbosity": [ 0 | 1 | 2 ]  # How much to print, 0 = quiet, 1 = show failed, 2 = show all
+Full list of configuration options:
+- "include_paths": [ List of strings ]  # Pattern to search modules with. Defaults to `[**/*.py]`
+- "exclude_paths": [ List of strings ]  # Pattern to exclude modules with. Defaults to `["**/__init__.py", "**/setup.py"]`
+- "verbosity": [ 0 | 1 | 2 ]  # How much to print, 0 = quiet, 1 = show failed, 2 = show all.
 - "parser": [ "google" (default) | "sphinx" | "numpy" ]  # Docstring format to use. Please raise an issue if you need other formats implemented.
-- "fail_on_missing_docstring": [ true | false (default) ]  # Mark a function as failed, if it does not have a docstring
+- "fail_on_missing_docstring": [ true | false (default) ]  # Mark a function as failed, if it does not have a docstring.
 - "fail_on_missing_summary": [ true | false (default) ]  # Mark a function as failed, if it does have a docstring, but no summary.
 - "fail_on_raises_section": [ true (default) | false ]  # Mark a function as failed, if docstring doesn't mention raised exceptions correctly.
+
+CLI
+------------
+Printing the help message shows all currently implemented cli options.
+```
+pydoctest --help
+```
 
 Example
 -------

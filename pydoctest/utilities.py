@@ -127,3 +127,18 @@ def get_exceptions_raised(fn: FunctionType, module: ModuleType) -> List[str]:
 
     # Make sure we dont return duplicate exceptions
     return list(set(visitor.nodes))
+
+
+def parse_cli_list(content: str, separator: str = ',') -> List[str]:
+    """
+    Parses a string-list by splitting on separator, trimming and removing empty results.
+
+    Args:
+        content (str): The string coming from a cli command.
+        separator (str, optional): The separator to split the list by. Defaults to ','.
+
+    Returns:
+        List[str]: The list-items.
+    """
+    items = content.split(separator)
+    return [i.strip() for i in items if i]

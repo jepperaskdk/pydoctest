@@ -2,4 +2,5 @@ pytest==6.2.4
 coverage==5.5
 mypy==0.812
 mypy-extensions==0.4.3
+flake8==5.0.4
 pydoctest

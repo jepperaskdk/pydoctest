@@ -44,9 +44,6 @@ class TestGetConfiguration():
         config = get_configuration("tests/test_main/no_config_here")
         assert config.working_directory.replace("\\", "/").endswith("tests/test_main/no_config_here")
 
-        # Default configs have empty include_paths
-        assert config.include_paths == []
-
 
 class TestGetReporter():
     def test_get_default_reporter(self) -> None:

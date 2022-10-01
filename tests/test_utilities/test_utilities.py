@@ -7,7 +7,7 @@ from pydoctest.configuration import Configuration
 
 from pydoctest.validation import ResultType, validate_class, validate_function
 from pydoctest.main import PyDoctestService
-from pydoctest.utilities import get_exceptions_raised, get_type_from_module
+from pydoctest.utilities import get_exceptions_raised, get_type_from_module, parse_cli_list
 import tests.test_utilities.example_class
 
 
@@ -63,3 +63,14 @@ class TestUtilities():
 
         intersection = set(expected_exceptions) - set(actual_exceptions)
         assert len(intersection) == 0
+
+    def test_parse_cli_list(self) -> None:
+        """
+        Tests the parse_cli_list function for various inputs
+        """
+
+        assert ["a.py"] == parse_cli_list("a.py")
+        assert ["a.py"] == parse_cli_list("a.py,")
+        assert ["a.py"] == parse_cli_list(",a.py,")
+        assert ["a.py", "b.py"] == parse_cli_list("a.py,b.py")
+        assert ["a.py", "b.py"] == parse_cli_list("a.py,       b.py")

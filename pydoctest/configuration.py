@@ -30,9 +30,12 @@ class Configuration():
         The properties here can be overridden with a pydoctest.json config file.
         """
         self.working_directory: str = ""
-        # Empty include_paths assumes all directories in current directory
-        self.include_paths: List[str] = []
-        self.exclude_paths: List[str] = []
+
+        # List of patterns to discover modules by
+        self.include_paths: List[str] = [ '**/*.py' ]
+
+        # List of patterns to exclude modules discovered by
+        self.exclude_paths: List[str] = [ '**/__init__.py', '**/setup.py' ]
 
         # Doctype parser to use, defaults to Google
         self.parser = "google"
