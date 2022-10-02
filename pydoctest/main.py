@@ -21,7 +21,7 @@ from pydoctest.reporters.reporter import Reporter
 from pydoctest.reporters.json_reporter import JSONReporter
 from pydoctest.reporters.text_reporter import TextReporter
 from pydoctest.validation import ModuleValidationResult, Result, ResultType, ValidationResult, validate_class, validate_function
-from pydoctest.utilities import parse_cli_list, is_excluded_path
+from pydoctest.utilities import is_excluded_class, is_excluded_function, parse_cli_list, is_excluded_path
 
 # We always want to exclude setup.py
 DEFAULT_EXCLUDE_PATHS = [ "**/setup.py" ]
@@ -131,7 +131,9 @@ class PyDoctestService():
         """
         fns = []
         for name, obj in inspect.getmembers(module, lambda x: inspect.isfunction(x) and x.__module__ == module.__name__):
-            fns.append(obj)
+            # Check if function is excluded
+            if not is_excluded_function(name, self.config.exclude_functions):
+                fns.append(obj)
         return fns
 
     def get_classes(self, module: ModuleType) -> List[Type]:
@@ -149,7 +151,10 @@ class PyDoctestService():
             if issubclass(obj, Enum):
                 # Ignore enums
                 continue
-            classes.append(obj)
+
+            # Check if class is excluded before adding
+            if not is_excluded_class(obj.__name__, self.config.exclude_classes):
+                classes.append(obj)
         return classes
 
     def discover_modules(self) -> List[str]:
@@ -162,11 +167,12 @@ class PyDoctestService():
 
         include_paths = self.config.include_paths
         exclude_paths = self.config.exclude_paths + DEFAULT_EXCLUDE_PATHS
+        abs_exclude_paths = [os.path.join(self.config.working_directory, p) for p in exclude_paths]
 
         for include_path in include_paths:
             path = pathlib.Path(self.config.working_directory)
-            disovered_paths = list(path.glob(include_path))
-            allowed_paths = [str(p) for p in disovered_paths if not is_excluded_path(p, exclude_paths)]
+            discovered_paths = list(path.glob(include_path))
+            allowed_paths = [str(p) for p in discovered_paths if not is_excluded_path(str(p), abs_exclude_paths)]
             include_file_paths.extend(allowed_paths)
 
         return include_file_paths

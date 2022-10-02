@@ -26,7 +26,7 @@ class TestExcludePaths():
         config = Configuration.get_default_configuration()
         config.working_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), "deep_project"))
         config.include_paths = ["a/**/*.py"]
-        config.exclude_paths = ["file_a_*.py"]
+        config.exclude_paths = ["**/file_a_*.py"]
         service = PyDoctestService(config)
         modules = service.discover_modules()
 

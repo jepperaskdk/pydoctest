@@ -10,7 +10,7 @@ def b(d: int) -> int:
     pass
 
 
-class ExampleCLIClass():
+class ExampleCLIClassCopy():
     def a(self, b: int) -> int:
         """[summary]
 
