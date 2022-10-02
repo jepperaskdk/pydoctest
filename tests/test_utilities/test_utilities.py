@@ -42,7 +42,7 @@ class TestUtilities():
     def test_get_type_from_module_raises(self) -> None:
         config = Configuration.get_default_configuration()
         result = validate_function(tests.test_utilities.example_class.ExampleClass.func_raises, config, tests.test_utilities.example_class)
-        assert 'Unable to parse docstring: a (DEFINITELYNOTACLASS): [description]' in result.fail_reason
+        assert "Unable to parse docstring: Unknown type 'DEFINITELYNOTACLASS' in 'a (DEFINITELYNOTACLASS): [description]'" in result.fail_reason
 
     def test_get_exceptions_raised(self) -> None:
         actual_exceptions = get_exceptions_raised(tests.test_utilities.example_class.ExampleClass.func_with_raise, tests.test_utilities.example_class)

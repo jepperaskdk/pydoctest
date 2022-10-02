@@ -189,7 +189,7 @@ def get_configuration(root_dir: str, config_path: Optional[str] = None) -> Confi
 
     Args:
         root_dir (str): The directory to search in.
-        config_path (Optional[str], optional): [description]. Defaults to None.
+        config_path (Optional[str]): [description]. Defaults to None.
 
     Returns:
         Configuration: Either a configuration matching the specified/found one, or a default one.

@@ -1,12 +1,60 @@
+import re
 from types import ModuleType
-from typing import List, Optional, Type
+from typing import Dict, List, Optional, Type
 
-from pydoctest.parsers.parser import Parameter, Parser
+from pydoctest.parsers.parser import Parameter, Parser, Section
 from pydoctest.utilities import get_type_from_module
-from pydoctest.exceptions import ParseException
+from pydoctest.exceptions import ParseException, UnknownTypeException
+
+
+SECTION_NAMES = {
+    Section.ARGUMENTS: "Args:",
+    Section.RAISES: "Raises:",
+    Section.RETURNS: "Returns:",
+}
+
+# Regex matches [name] ([type]): [description] with some extra whitespace
+# e.g. this would also match: a      (  int   )   :    kmdkfmdf
+# It terminates with .* meaning a new match is the terminator. This should support multiline descriptions without having to consider tabs/indentation.
+ARGUMENT_REGEX = re.compile(r"\s*(?P<name>(\w+))\s*\((?P<type>[\w\.\[\], ]+)\)\s*:(.*)")
 
 
 class GoogleParser(Parser):
+
+    def __get_sections(self, doc: str) -> Dict[Section, str]:
+        """
+        Splits the docstring into sections.
+
+        Args:
+            doc (str): The docstring.
+
+        Returns:
+            Dict[Section, str]: A map from section-type to section-string.
+        """
+        result: Dict[Section, str] = {}
+        indices = [(section, doc.index(name)) for section, name in SECTION_NAMES.items() if name in doc]
+        sections_sorted = sorted(indices, key=lambda kv: kv[1])
+
+        if len(sections_sorted) > 0:
+            result[Section.SUMMARY] = doc[:sections_sorted[0][1]]
+        else:
+            result[Section.SUMMARY] = doc
+
+        for i in range(len(sections_sorted)):
+            section, index = sections_sorted[i]
+
+            if i == len(sections_sorted) - 1:
+                # Last section
+                result[section] = doc[index:]
+            else:
+                # Has section after, so use following section's index as stop index
+                result[section] = doc[index:sections_sorted[i + 1][1]]
+
+        # Make sure we didn't lose any characters
+        assert sum(len(s) for s in result.values()) == len(doc)
+
+        return result
+
     def get_exceptions_raised(self, doc: str) -> List[str]:
         """Returns the exceptions listed as raised in the docstring.
 
@@ -82,36 +130,30 @@ class GoogleParser(Parser):
         Returns:
             List[Parameter]: The parameters parsed from the docstring.
         """
-        if 'Args:' not in doc:
+
+        sections = self.__get_sections(doc)
+        if Section.ARGUMENTS not in sections:
             return []
-        _, tail = doc.split("Args:")
-
-        if 'Returns:' in tail:
-            arguments_string, _ = tail.split('Returns:')
-        else:
-            arguments_string = tail
-
-        if 'Raises:' in arguments_string:
-            arguments_string, _ = tail.split('Raises:')
-
-        # TODO: Improve this. We might encounter more newlines.
-        # Google styleguide appears to suggest using tab-indents for separating arguments
-        # Could perhaps regex for NAME (TYPE): DESCRIPTION
-        args_strings = [arg.strip() for arg in arguments_string.strip().split("\n")]
 
         parameters = []
-        for arg_string in args_strings:
+
+        for match in re.finditer(ARGUMENT_REGEX, sections[Section.ARGUMENTS]):
+            start, end = match.span()
+            name = match.group('name').strip()
+            type = match.group('type').strip()
+
             try:
-                docname, tail = [x.strip() for x in arg_string.split('(', maxsplit=1)]
-                doctype, tail = tail.split(':')
-                doctype = doctype.replace(')', '')
-                doctype = doctype.replace(', optional', '')  # TODO: How do we deal with Optional[int] being (Optional[int], optional)?
-                located_type = get_type_from_module(doctype, module_type)
-                parameters.append(Parameter(docname, located_type.type))
-            except ValueError:
-                raise ParseException(arg_string)
+                located_type = get_type_from_module(type, module_type)
+                parameters.append(Parameter(name, located_type.type))
+            except UnknownTypeException:
+                raise ParseException(f"Unknown type '{type}' in '{sections[Section.ARGUMENTS][start:end].strip()}'")
             except Exception:
-                raise ParseException(arg_string)
+                raise ParseException(sections[Section.ARGUMENTS][start:end].strip())
+
+        # If we have an Args section, but no parameters, we must have failed to parse
+        if len(parameters) == 0:
+            raise ParseException()
+
         return parameters
 
     def get_return_type(self, doc: str, module_type: ModuleType) -> Type:

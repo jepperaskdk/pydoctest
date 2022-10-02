@@ -1,5 +1,13 @@
+from enum import IntEnum
 from typing import List, Optional, Type
 from types import ModuleType
+
+
+class Section(IntEnum):
+    SUMMARY = 0,
+    ARGUMENTS = 1,
+    RAISES = 2,
+    RETURNS = 3
 
 
 class Parameter():

@@ -8,6 +8,8 @@ from typing import List, Type, cast
 
 from pydoc import locate
 
+from pydoctest.exceptions import UnknownTypeException
+
 
 class LocateResult():
     """Small DTO for storing type and method used for finding it.
@@ -32,7 +34,7 @@ def get_type_from_module(type_string: str, module: ModuleType) -> LocateResult:
         module (ModuleType): The module the type_string is extracted from.
 
     Raises:
-        Exception: If unable to find the type, we throw an Exception.
+        UnknownTypeException: If unable to find the type, we throw an Exception.
 
     Returns:
         LocateResult: A LocateResult wrapping the type when found.
@@ -73,7 +75,7 @@ def get_type_from_module(type_string: str, module: ModuleType) -> LocateResult:
         SEARCHES_LEFT -= 1
 
     # TODO: We should make this configurable in config
-    raise Exception(f"Was unable to detect the type of: {type_string} from module: {module.__file__}.\nIf you believe this is a bug, please file it here: https://github.com/jepperaskdk/pydoctest/issues")
+    raise UnknownTypeException(f"Was unable to detect the type of: {type_string} from module: {module.__file__}.\nIf you believe this is a bug, please file it here: https://github.com/jepperaskdk/pydoctest/issues")
 
 
 class RaiseVisitor(ast.NodeVisitor):
@@ -135,7 +137,7 @@ def parse_cli_list(content: str, separator: str = ',') -> List[str]:
 
     Args:
         content (str): The string coming from a cli command.
-        separator (str, optional): The separator to split the list by. Defaults to ','.
+        separator (str): The separator to split the list by. Defaults to ','.
 
     Returns:
         List[str]: The list-items.
