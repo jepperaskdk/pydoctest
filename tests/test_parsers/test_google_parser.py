@@ -5,6 +5,7 @@ from pydoctest.parsers.google_parser import GoogleParser
 from pydoctest.exceptions import ParseException
 
 import tests.test_class.incorrect_class
+import tests.test_parsers.google_class
 
 
 class TestGoogleParser():
@@ -134,3 +135,17 @@ class TestGoogleParser():
 
         intersection = set(expected_exceptions) - set(actual_exceptions)
         assert len(intersection) == 0
+
+    def test_func_with_colon_in(self) -> None:
+        """
+        Solves: https://github.com/jepperaskdk/pydoctest/issues/29
+        """
+        parser = GoogleParser()
+        doc = pydoc.getdoc(tests.test_parsers.google_class.GoogleClass.function_with_colon)
+        params = parser.get_parameters(doc, tests.test_parsers.google_class)
+
+        assert len(params) == 2
+        assert params[0].name == "a"
+        assert params[0].type == int
+        assert params[1].name == "b"
+        assert params[1].type == int
