@@ -66,11 +66,34 @@ class TestUtilities():
 
     def test_parse_cli_list(self) -> None:
         """
-        Tests the parse_cli_list function for various inputs
+        Tests the parse_cli_list function for various inputs.
         """
-
         assert ["a.py"] == parse_cli_list("a.py")
         assert ["a.py"] == parse_cli_list("a.py,")
         assert ["a.py"] == parse_cli_list(",a.py,")
         assert ["a.py", "b.py"] == parse_cli_list("a.py,b.py")
         assert ["a.py", "b.py"] == parse_cli_list("a.py,       b.py")
+
+    def test_is_excluded_path(self) -> None:
+        """
+        Tests the is_excluded_path function for exclude patterns.
+        """
+        assert False
+
+    def test_is_excluded_class(self) -> None:
+        """
+        Tests the is_excluded_class function for exclude patterns.
+        """
+        assert False
+
+    def test_is_excluded_method(self) -> None:
+        """
+        Tests the is_excluded_method function for exclude patterns.
+        """
+        assert False
+
+    def test_is_excluded_function(self) -> None:
+        """
+        Tests the is_excluded_function function for exclude patterns.
+        """
+        assert False

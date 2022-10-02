@@ -43,3 +43,21 @@ class TestMain(TestCase):
         out, err = self.execute_command('python3 -m pydoctest.main --config tests/test_cli/pydoctest.json --reporter json --include-paths "*.py" --exclude-paths "**/excluded_class_cli.py"')
         output = json.loads(out)
         assert len(output['module_results']) == 3
+
+    def test_include_exclude_classes_argument(self) -> None:
+        """
+        Tests that the '--exclude-classes' argument is parsed.
+        """
+        assert False
+
+    def test_include_exclude_methods_argument(self) -> None:
+        """
+        Tests that the '--exclude-methods' argument is parsed.
+        """
+        assert False
+
+    def test_include_exclude_functions_argument(self) -> None:
+        """
+        Tests that the '--exclude-functions' argument is parsed.
+        """
+        assert False

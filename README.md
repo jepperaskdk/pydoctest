@@ -62,13 +62,16 @@ Docstring format can be specified with the `--parser` argument:
 Currently, only google, numpy and sphinx are supported.
 
 Full list of configuration options:
-- "include_paths": [ List of strings ]  # Pattern to search modules with. Defaults to `[**/*.py]`
-- "exclude_paths": [ List of strings ]  # Pattern to exclude modules with. Defaults to `["**/__init__.py", "**/setup.py"]`
+- "include_paths": [ List of strings ]  # Patterns to search modules with. Defaults to `[**/*.py]`
+- "exclude_paths": [ List of strings ]  # Patterns to exclude modules with. Defaults to `["**/__init__.py", "**/setup.py"]`
 - "verbosity": [ 0 | 1 | 2 ]  # How much to print, 0 = quiet, 1 = show failed, 2 = show all.
 - "parser": [ "google" (default) | "sphinx" | "numpy" ]  # Docstring format to use. Please raise an issue if you need other formats implemented.
 - "fail_on_missing_docstring": [ true | false (default) ]  # Mark a function as failed, if it does not have a docstring.
 - "fail_on_missing_summary": [ true | false (default) ]  # Mark a function as failed, if it does have a docstring, but no summary.
 - "fail_on_raises_section": [ true (default) | false ]  # Mark a function as failed, if docstring doesn't mention raised exceptions correctly.
+- "exclude_classes": [ List of strings ] # Patterns to exclude classes with, e.g. `["Test*]"`
+- "exclude_methods": [ List of strings ] # Patterns to exclude class methods with, e.g. for private methods you would use `["__*]"`
+- "exclude_functions": [ List of strings ] # Patterns to exclude functions with, e.g. for private methods you would use `["__*]"`
 
 CLI
 ------------

@@ -1,6 +1,7 @@
 from collections import deque
 import inspect
 import ast
+import pathlib
 import textwrap
 
 from types import FunctionType, ModuleType
@@ -142,3 +143,59 @@ def parse_cli_list(content: str, separator: str = ',') -> List[str]:
     """
     items = content.split(separator)
     return [i.strip() for i in items if i]
+
+
+def is_excluded_path(path: pathlib.Path, exclude_paths: List[str]) -> bool:
+    """
+    Returns whether the found path is excluded by any of the exclude_paths.
+
+    Args:
+        path (pathlib.Path): The path to test
+        exclude_paths (List[str]): The exclude paths
+
+    Returns:
+        bool: If path is excluded.
+    """
+    return any(path.match(e_p) for e_p in exclude_paths)
+
+
+def is_excluded_class(class_name: str, exclude_classes: List[str]) -> bool:
+    """
+    Returns whether the class is excluded by any of the exclude_classes patterns.
+
+    Args:
+        class_name (str): The class_name to test
+        exclude_classes (List[str]): The exclude class patterns
+
+    Returns:
+        bool: If class is excluded.
+    """
+    return False
+
+
+def is_excluded_method(method_name: str, exclude_methods: List[str]) -> bool:
+    """
+    Returns whether the method is excluded by any of the exclude_methods patterns.
+
+    Args:
+        method_name (str): The method_name to test
+        exclude_methods (List[str]): The exclude method patterns
+
+    Returns:
+        bool: If method is excluded.
+    """
+    return False
+
+
+def is_excluded_function(function_name: str, exclude_functions: List[str]) -> bool:
+    """
+    Returns whether the function is excluded by any of the exclude_functions patterns.
+
+    Args:
+        function_name (str): The function_name to test
+        exclude_functions (List[str]): The exclude function patterns
+
+    Returns:
+        bool: If function is excluded.
+    """
+    return False
