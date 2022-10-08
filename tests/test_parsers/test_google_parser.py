@@ -1,5 +1,5 @@
 import pydoc
-from typing import Literal
+from typing_extensions import Literal
 import pytest
 
 from pydoctest.parsers.google_parser import GoogleParser
