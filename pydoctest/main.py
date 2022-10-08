@@ -21,7 +21,7 @@ from pydoctest.reporters.reporter import Reporter
 from pydoctest.reporters.json_reporter import JSONReporter
 from pydoctest.reporters.text_reporter import TextReporter
 from pydoctest.validation import ModuleValidationResult, Result, ResultType, ValidationResult, validate_class, validate_function
-from pydoctest.utilities import parse_cli_list
+from pydoctest.utilities import is_excluded_class, is_excluded_function, parse_cli_list, is_excluded_path
 
 # We always want to exclude setup.py
 DEFAULT_EXCLUDE_PATHS = [ "**/setup.py" ]
@@ -111,6 +111,7 @@ class PyDoctestService():
 
         # Validate top-level classes in module
         classes = self.get_classes(module_type)
+
         for cl in classes:
             class_result = validate_class(cl, self.config, module_type)
             if class_result.result == ResultType.FAILED:
@@ -130,7 +131,9 @@ class PyDoctestService():
         """
         fns = []
         for name, obj in inspect.getmembers(module, lambda x: inspect.isfunction(x) and x.__module__ == module.__name__):
-            fns.append(obj)
+            # Check if function is excluded
+            if not is_excluded_function(name, self.config.exclude_functions):
+                fns.append(obj)
         return fns
 
     def get_classes(self, module: ModuleType) -> List[Type]:
@@ -148,21 +151,11 @@ class PyDoctestService():
             if issubclass(obj, Enum):
                 # Ignore enums
                 continue
-            classes.append(obj)
+
+            # Check if class is excluded before adding
+            if not is_excluded_class(obj.__name__, self.config.exclude_classes):
+                classes.append(obj)
         return classes
-
-    def __is_excluded_path(self, path: pathlib.Path, exclude_paths: List[str]) -> bool:
-        """
-        Returns whether the found path is excluded by any of the exclude_paths.
-
-        Args:
-            path (pathlib.Path): The path to test
-            exclude_paths (List[str]): The exclude paths
-
-        Returns:
-            bool: If path is excluded.
-        """
-        return any(path.match(e_p) for e_p in exclude_paths)
 
     def discover_modules(self) -> List[str]:
         """Discovers modules using the configuration include/exclude paths.
@@ -174,11 +167,12 @@ class PyDoctestService():
 
         include_paths = self.config.include_paths
         exclude_paths = self.config.exclude_paths + DEFAULT_EXCLUDE_PATHS
+        abs_exclude_paths = [os.path.join(self.config.working_directory, p) for p in exclude_paths]
 
         for include_path in include_paths:
             path = pathlib.Path(self.config.working_directory)
-            disovered_paths = list(path.glob(include_path))
-            allowed_paths = [str(p) for p in disovered_paths if not self.__is_excluded_path(p, exclude_paths)]
+            discovered_paths = list(path.glob(include_path))
+            allowed_paths = [str(p) for p in discovered_paths if not is_excluded_path(str(p), abs_exclude_paths)]
             include_file_paths.extend(allowed_paths)
 
         return include_file_paths
@@ -243,9 +237,11 @@ def main() -> None:  # pragma: no cover
     parser.add_argument("--file", help="Analyze single file")
     parser.add_argument("--parser", help="Docstring format, either: google|sphinx|numpy")
 
-    # TODO: Implement splitting by comma and
-    parser.add_argument("--include-paths", help="Pattern to include paths by, defaults to \"**/*.py\"")
-    parser.add_argument("--exclude-paths", help="Pattern to exclude paths by, defaults to \"**/__init__.py, **/setup.py\"")
+    parser.add_argument("--include-paths", help="Patterns to include paths by, defaults to \"**/*.py\"")
+    parser.add_argument("--exclude-paths", help="Patterns to exclude paths by, defaults to \"**/__init__.py, **/setup.py\"")
+    parser.add_argument("--exclude-classes", help="Patterns to exclude classes by")
+    parser.add_argument("--exclude-methods", help="Patterns to exclude methods by")
+    parser.add_argument("--exclude-functions", help="Patterns to exclude functions by")
 
     args = parser.parse_args()
 
@@ -275,6 +271,13 @@ def main() -> None:  # pragma: no cover
 
         if args.exclude_paths:
             config.exclude_paths = parse_cli_list(args.exclude_paths)
+
+        if args.exclude_classes:
+            config.exclude_classes = parse_cli_list(args.exclude_classes)
+        if args.exclude_methods:
+            config.exclude_methods = parse_cli_list(args.exclude_methods)
+        if args.exclude_functions:
+            config.exclude_functions = parse_cli_list(args.exclude_functions)
 
         # Check that parser exists before running.
         config.get_parser()

@@ -1,4 +1,5 @@
 from collections import deque
+import re
 import inspect
 import ast
 import textwrap
@@ -144,3 +145,78 @@ def parse_cli_list(content: str, separator: str = ',') -> List[str]:
     """
     items = content.split(separator)
     return [i.strip() for i in items if i]
+
+
+def pattern_matches(pattern: str, test_string: str) -> bool:
+    """
+    Returns whether the string matches the pattern.
+    Inspired by this answer, by Mathew Wicks (and Nizam Mohamed): https://stackoverflow.com/a/72400344/3717691
+
+    pathlib.Path.match and fnmatch incorrectly returns recursive results for e.g. *.py.
+
+    Args:
+        pattern (str): The pattern, e.g. "**/*.py"
+        test_string (str): The string being tested, e.g. "a/b/c/abc.py"
+
+    Returns:
+        bool: If test_string is matched by pattern.
+    """
+    i, n = 0, len(pattern)
+    res = ''
+    while i < n:
+        c = pattern[i]
+        i = i + 1
+        if c == '*':
+            j = i
+            if j < n and pattern[j] == '*':
+                res = res + '.*/?'
+                i = j + 2
+            else:
+                res = res + '[^/]*'
+        else:
+            res = res + re.escape(c)
+    regex = r'(?s:%s)\Z' % res
+    glob_re = re.compile(regex)
+    return bool(glob_re.match(test_string))
+
+
+def is_excluded_path(path: str, exclude_paths: List[str]) -> bool:
+    """
+    Returns whether the found path is excluded by any of the exclude_paths.
+
+    Args:
+        path (str): The path to test
+        exclude_paths (List[str]): The exclude paths
+
+    Returns:
+        bool: If path is excluded.
+    """
+    return any(pattern_matches(e_p, path) for e_p in exclude_paths)
+
+
+def is_excluded_class(class_name: str, exclude_classes: List[str]) -> bool:
+    """
+    Returns whether the class is excluded by any of the exclude_classes patterns.
+
+    Args:
+        class_name (str): The class_name to test
+        exclude_classes (List[str]): The exclude class patterns
+
+    Returns:
+        bool: If class is excluded.
+    """
+    return any(pattern_matches(e_p, class_name) for e_p in exclude_classes)
+
+
+def is_excluded_function(function_name: str, exclude_functions: List[str]) -> bool:
+    """
+    Returns whether the function (or method) is excluded by any of the exclude_functions patterns.
+
+    Args:
+        function_name (str): The function_name to test
+        exclude_functions (List[str]): The exclude function patterns
+
+    Returns:
+        bool: If function is excluded.
+    """
+    return any(pattern_matches(e_p, function_name) for e_p in exclude_functions)

@@ -10,7 +10,7 @@ from pydoctest.logging import log
 from pydoctest.configuration import Configuration
 from pydoctest.parsers.parser import Parameter
 from pydoctest.exceptions import ParseException
-from pydoctest.utilities import get_exceptions_raised
+from pydoctest.utilities import get_exceptions_raised, is_excluded_function
 
 
 class Range():
@@ -362,14 +362,19 @@ def validate_class(class_instance: Any, config: Configuration, module_type: Modu
     log(f"Validating class: {class_instance}")
     class_result = ClassValidationResult(class_instance.__name__)
 
-    # for name, item in class_instance.__dict__.items():
     for name, item in inspect.getmembers(class_instance):
         if inspect.isfunction(item) and item.__module__ == module_type.__name__:
             if name not in class_instance.__dict__ or item != class_instance.__dict__[name]:
                 continue
+
+            # Check if method is excluded
+            if is_excluded_function(name, config.exclude_methods):
+                continue
+
             function_result = validate_function(item, config, module_type)
             if function_result.result == ResultType.FAILED:
                 class_result.result = ResultType.FAILED
+
             class_result.function_results.append(function_result)
 
     # If result has not been changed at this point, it must be OK

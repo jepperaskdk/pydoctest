@@ -1,5 +1,4 @@
 import sys
-import pytest
 
 # These two imports are necessary for test_get_type_from_module_bfs
 import pydoctest
@@ -7,7 +6,7 @@ from pydoctest.configuration import Configuration
 
 from pydoctest.validation import ResultType, validate_class, validate_function
 from pydoctest.main import PyDoctestService
-from pydoctest.utilities import get_exceptions_raised, get_type_from_module, parse_cli_list
+from pydoctest.utilities import get_exceptions_raised, get_type_from_module, is_excluded_path, parse_cli_list, is_excluded_function, is_excluded_class
 import tests.test_utilities.example_class
 
 
@@ -66,11 +65,42 @@ class TestUtilities():
 
     def test_parse_cli_list(self) -> None:
         """
-        Tests the parse_cli_list function for various inputs
+        Tests the parse_cli_list function for various inputs.
         """
-
         assert ["a.py"] == parse_cli_list("a.py")
         assert ["a.py"] == parse_cli_list("a.py,")
         assert ["a.py"] == parse_cli_list(",a.py,")
         assert ["a.py", "b.py"] == parse_cli_list("a.py,b.py")
         assert ["a.py", "b.py"] == parse_cli_list("a.py,       b.py")
+
+    def test_is_excluded_path(self) -> None:
+        """
+        Tests the is_excluded_path function for exclude patterns.
+        """
+        assert is_excluded_path("a.py", ["*"])
+        assert is_excluded_path("a.py", ["a.py"])
+        assert is_excluded_path("a.py", ["*.py"])
+        assert not is_excluded_path("a/b/c/d/e.py", ["*.py"])
+        assert is_excluded_path("a/b/c/d/e.py", ["**/*.py"])
+
+    def test_is_excluded_class(self) -> None:
+        """
+        Tests the is_excluded_class function for exclude patterns.
+        """
+        assert is_excluded_path("TestClass", ["Test*"])
+        assert is_excluded_path("TestClass", ["TestClass"])
+        assert is_excluded_path("TestClass", ["TestClass*"])
+        assert is_excluded_path("TestClass", ["*stCla*"])
+        assert is_excluded_path("TestClass", ["*"])
+        assert not is_excluded_path("TestClass", ["CrestClass"])
+
+    def test_is_excluded_function(self) -> None:
+        """
+        Tests the is_excluded_function function for exclude patterns.
+        """
+        assert is_excluded_function("test_function", ["*"])
+        assert is_excluded_function("test_function", ["test_*"])
+        assert is_excluded_function("test_function", ["test_function"])
+        assert is_excluded_function("test_function", ["test_function*"])
+        assert is_excluded_function("test_functionTestClass", ["*st_fu*"])
+        assert not is_excluded_function("TestClass", ["CrestClass"])

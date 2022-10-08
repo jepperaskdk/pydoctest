@@ -52,6 +52,15 @@ class Configuration():
         # Throw an error if 'raises' section does not list all exceptions
         self.fail_on_raises_section = True
 
+        # List of patterns to exclude classes from being analyzed by
+        self.exclude_classes: List[str] = []
+
+        # List of patterns to exclude methods from being analyzed by
+        self.exclude_methods: List[str] = []
+
+        # List of patterns to exclude functions from being analyzed by
+        self.exclude_functions: List[str] = []
+
     @staticmethod
     def get_default_configuration(root_dir: Optional[str] = None) -> 'Configuration':
         """Returns a configuration with default values.
