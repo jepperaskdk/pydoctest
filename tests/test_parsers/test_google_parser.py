@@ -1,4 +1,5 @@
 import pydoc
+from typing_extensions import Literal
 import pytest
 
 from pydoctest.parsers.google_parser import GoogleParser
@@ -149,3 +150,15 @@ class TestGoogleParser():
         assert params[0].type == int
         assert params[1].name == "b"
         assert params[1].type == int
+
+    def test_function_with_literal(self) -> None:
+        """
+        Solves: https://github.com/jepperaskdk/pydoctest/issues/41
+        """
+        parser = GoogleParser()
+        doc = pydoc.getdoc(tests.test_parsers.google_class.GoogleClass.function_with_literal)
+        params = parser.get_parameters(doc, tests.test_parsers.google_class)
+
+        assert len(params) == 1
+        assert params[0].name == 'a'
+        assert params[0].type == Literal['b', 'c']

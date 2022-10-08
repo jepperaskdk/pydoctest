@@ -55,12 +55,11 @@ class TextReporter(Reporter):
         Returns:
             str: The output from the function.
         """
-        result.module.__file__
-        try:
+        module = ""
+        if result.module.__file__:
             # Try to get just workspace relative path
             module = result.module.__file__.replace(self.config.working_directory, "")
-        except Exception:
-            pass
+
         function_name = result.function.__name__
         class_name_if_exists = class_name + '::' if class_name is not None else ''
         if result.result == ResultType.OK:
