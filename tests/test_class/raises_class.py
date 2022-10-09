@@ -91,3 +91,12 @@ class RaisesClass():
 
         if 2 == 5:
             raise IndexError()
+
+    def func_with_raise_multiline_string(self) -> None:
+        """
+        [summary]
+        """
+        multiline_string = """
+this has weird indentation
+        """
+        pass
