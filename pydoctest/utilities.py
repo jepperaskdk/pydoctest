@@ -123,6 +123,7 @@ def dedent_from_first(source_string: str) -> str:
     first_leading_indents = get_leading_indents(lines[0])
     for i, line in enumerate(lines):
         if get_leading_indents(line) != 0:
+            # TODO: We need to make sure we don't remove non-whitespace characters here.
             lines[i] = line[first_leading_indents:]
 
     return '\n'.join(lines)
