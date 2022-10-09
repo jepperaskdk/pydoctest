@@ -2,14 +2,13 @@ from collections import deque
 import re
 import inspect
 import ast
-import textwrap
 
 from types import FunctionType, ModuleType
-from typing import List, Type, cast
+from typing import Any, List, Optional, Type, cast
 
 from pydoc import locate
 
-from pydoctest.exceptions import UnknownTypeException
+from pydoctest.exceptions import UnknownTypeException, ParseException
 
 
 class LocateResult():
@@ -97,6 +96,38 @@ class RaiseVisitor(ast.NodeVisitor):
         super().visit(n)
 
 
+def dedent_from_first(source_string: str) -> str:
+    """
+    Simple method for dedenting code similar to textwrap.dedent.
+    A problem with textwrap.dedent is that it only removes common leading whitespace,
+    which is not enough when a function has multilinestrings that has no leading whitespace.
+
+    This function dedents the entire source_string, based on the whitespace/tabs in the first line (i.e. the 'def').
+
+    Args:
+        source_string (str): The source code string to dedent.
+
+    Returns:
+        str: The source code string dedented once.
+    """
+    def get_leading_indents(s: str) -> int:
+        return len(s) - len(s.lstrip())
+
+    if get_leading_indents(source_string) == 0:
+        return source_string
+
+    lines = source_string.splitlines()
+    if len(lines) == 0:
+        return source_string
+
+    first_leading_indents = get_leading_indents(lines[0])
+    for i, line in enumerate(lines):
+        if get_leading_indents(line) != 0:
+            lines[i] = line[first_leading_indents:]
+
+    return '\n'.join(lines)
+
+
 def get_exceptions_raised(fn: FunctionType, module: ModuleType) -> List[str]:
     """Get exceptions raised in fn.
 
@@ -108,22 +139,25 @@ def get_exceptions_raised(fn: FunctionType, module: ModuleType) -> List[str]:
         fn (FunctionType): The function to get raised exceptions from.
         module (ModuleType): The module in which the function is defined.
 
+    Raises:
+        ParseException: If failing to parse the AST of the source code.
+
     Returns:
         List[str]: The list of exceptions thrown.
     """
-    # TODO: How do we compile functions, without having to check indentation
-
     fn_source = inspect.getsource(fn)
-    max_indents = 10
 
-    # Try to parse, and if IndentationError, dedent up to 10 times.
-    while max_indents > 0:
+    tree: Optional[Any] = None
+    # Try to parse, and if IndentationError, dedent.
+    for _ in range(2):
         try:
             tree = ast.parse(fn_source)
             break
         except IndentationError as e:
-            fn_source = textwrap.dedent(fn_source)
-            max_indents -= 1
+            fn_source = dedent_from_first(fn_source)
+
+    if tree is None:
+        raise ParseException("Failed to parse function source code to detect raised exceptions")
 
     visitor = RaiseVisitor()
     visitor.generic_visit(tree)

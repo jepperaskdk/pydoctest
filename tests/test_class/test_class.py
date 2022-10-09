@@ -176,3 +176,13 @@ class TestDocs():
         config.fail_on_raises_section = False
         result = validate_function(tests.test_class.raises_class.RaisesClass.func_with_incorrect_raise, config, tests.test_class.incorrect_class)
         assert result.result == ResultType.OK
+
+    # Test multiline strings
+    def test_raises_on_function_with_multiline_string(self) -> None:
+        """
+        Solves: https://github.com/jepperaskdk/pydoctest/issues/40.
+        """
+        config = Configuration.get_default_configuration()
+        config.fail_on_raises_section = True
+        result = validate_function(tests.test_class.raises_class.RaisesClass.func_with_raise_multiline_string, config, tests.test_class.incorrect_class)
+        assert result.result == ResultType.OK

@@ -4,9 +4,8 @@ import sys
 import pydoctest
 from pydoctest.configuration import Configuration
 
-from pydoctest.validation import ResultType, validate_class, validate_function
-from pydoctest.main import PyDoctestService
-from pydoctest.utilities import get_exceptions_raised, get_type_from_module, is_excluded_path, parse_cli_list, is_excluded_function, is_excluded_class
+from pydoctest.validation import validate_function
+from pydoctest.utilities import dedent_from_first, get_exceptions_raised, get_type_from_module, is_excluded_path, parse_cli_list, is_excluded_function, is_excluded_class
 import tests.test_utilities.example_class
 
 
@@ -104,3 +103,20 @@ class TestUtilities():
         assert is_excluded_function("test_function", ["test_function*"])
         assert is_excluded_function("test_functionTestClass", ["*st_fu*"])
         assert not is_excluded_function("TestClass", ["CrestClass"])
+
+    def test_dedent_from_first(self) -> None:
+        """
+        Tests the dedent_from_first function with different inputs.
+        """
+        assert "def test():\n    print('hello')" == dedent_from_first("    def test():\n        print('hello')")
+        assert "def test():\n    print('hello')" == dedent_from_first("            def test():\n                print('hello')")
+        assert "def test():\n\tprint('hello')" == dedent_from_first("\tdef test():\n\t\tprint('hello')")
+        assert "def test():\n\tprint('hello')" == dedent_from_first("\t\t\tdef test():\n\t\t\t\tprint('hello')")
+
+        # If already indented, should return input
+        assert "def test():\n\tprint('hello')" == dedent_from_first("def test():\n\tprint('hello')")
+
+        # Check single-line functions
+        assert "def test(): print('hello')" == dedent_from_first("def test(): print('hello')")
+        assert "def test(): print('hello')" == dedent_from_first("    def test(): print('hello')")
+        assert "def test(): print('hello')" == dedent_from_first("\tdef test(): print('hello')")
