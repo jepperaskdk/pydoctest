@@ -1,4 +1,5 @@
 import pydoc
+import sys
 from typing import Dict, Any
 import pytest
 
@@ -44,6 +45,16 @@ class TestSphinxParser():
         return_type = parser.get_return_type(doc, tests.test_parsers.sphinx_class)
         assert return_type == int, f"SphinxParser failed assertion"
 
+    @pytest.mark.skipif(sys.version_info < (3,10), reason="requires python3.10")
+    def test_func_returns_union(self) -> None:
+        parser = SphinxParser()
+        doc = pydoc.getdoc(tests.test_parsers.sphinx_class.CorrectTestClass.func_returns_union)
+        arguments = parser.get_parameters(doc, tests.test_parsers.sphinx_class)
+        assert len(arguments) == 0, f"SphinxParser failed assertion"
+
+        return_type = parser.get_return_type(doc, tests.test_parsers.sphinx_class)
+        assert return_type == int | str, f"SphinxParser failed assertion"
+
     def test_func_has_arg_returns_arg(self) -> None:
         parser = SphinxParser()
         doc = pydoc.getdoc(tests.test_parsers.sphinx_class.CorrectTestClass.func_has_arg_returns_arg)
@@ -53,6 +64,17 @@ class TestSphinxParser():
 
         return_type = parser.get_return_type(doc, tests.test_parsers.sphinx_class)
         assert return_type == float, f"SphinxParser failed assertion"
+
+    @pytest.mark.skipif(sys.version_info < (3,10), reason="requires python3.10")
+    def test_func_has_union_arg(self) -> None:
+        parser = SphinxParser()
+        doc = pydoc.getdoc(tests.test_parsers.sphinx_class.CorrectTestClass.func_has_union_arg)
+        arguments = parser.get_parameters(doc, tests.test_parsers.sphinx_class)
+        assert len(arguments) == 1, f"SphinxParser failed assertion"
+        assert arguments[0].type == int | str, f"SphinxParser failed assertion"
+
+        return_type = parser.get_return_type(doc, tests.test_parsers.sphinx_class)
+        assert return_type == type(None), f"SphinxParser failed assertion"
 
     def test_func_has_raises_doc(self) -> None:
         parser = SphinxParser()

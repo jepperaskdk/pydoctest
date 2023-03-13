@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Union
 
 
 def failing_global_function(a: int) -> int:
@@ -137,6 +137,14 @@ class CorrectTestClass():
         """
         pass
 
+    def func_returns_union(self) -> Union[int, str]:
+        """Func returns int or str
+
+        :return: [description]
+        :rtype: int | str
+        """
+        pass
+
     def func_has_arg_returns_arg(self, a: int) -> float:
         """Func takes argument and returns argument
 
@@ -144,6 +152,14 @@ class CorrectTestClass():
         :type a: int
         :return: [description]
         :rtype: float
+        """
+        pass
+
+    def func_has_union_arg(self, a: Union[int, str]) -> None:
+        """Func takes int or str
+
+        :param a: [description]
+        :type a: int | str
         """
         pass
 

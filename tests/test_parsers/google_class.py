@@ -1,3 +1,4 @@
+from typing import Union
 from typing_extensions import Literal
 
 
@@ -17,4 +18,15 @@ class GoogleClass():
         Args:
             a (Literal['b', 'c']): Literal parameter
         """
+        pass
+
+    def function_with_pipe(self, a: Union[int, float]) -> Union[int, float]:
+        """_summary_
+
+        Args:
+            a (int | float): Union type parameter
+        Returns:
+            (int | float): Union type return value
+        """
+
         pass

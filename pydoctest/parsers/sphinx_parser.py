@@ -1,4 +1,5 @@
 import re
+import sys
 
 from types import ModuleType
 from typing import List, Optional, Type
@@ -19,8 +20,14 @@ class SphinxParser(Parser):
         """Parser for Sphinx docstring style."""
         super().__init__()
         self.parameter_name_regex = re.compile(r":param\s+(\w+):")
-        self.parameter_type_regex = re.compile(r":type\s+\w+:\s*([\w\[\], ]+)")
-        self.return_type_regex = re.compile(r":rtype:\s*([\w\[\], ]+)")
+
+        if sys.version_info[:2] >= (3,10):
+            self.parameter_type_regex = re.compile(r":type\s+\w+:\s*([\w\[\], \|]+)")
+            self.return_type_regex = re.compile(r":rtype:\s*([\w\[\], \|]+)")
+        else:
+            self.parameter_type_regex = re.compile(r":type\s+\w+:\s*([\w\[\], ]+)")
+            self.return_type_regex = re.compile(r":rtype:\s*([\w\[\], ]+)")
+
         self.raises_regex = re.compile(r":raises\s+(\w+):")
 
     def get_exceptions_raised(self, doc: str) -> List[str]:

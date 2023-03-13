@@ -1,4 +1,5 @@
 import re
+import sys
 
 from types import ModuleType
 from typing import List, Optional, Type
@@ -27,8 +28,12 @@ class NumpyParser(Parser):
         ]
         # Split by word, newline, a number of '-' and newline
         self.section_regex = re.compile("([a-zA-Z]+)\n[-]+\n")
-        self.parameter_regex = re.compile(r"(\w+)\s*:\s*([\w\[\], ]+)")
-        self.returns_with_name_regex = re.compile(r"(\w+)\s*:\s*([\w\[\], ]+)")
+        if sys.version_info[:2] >= (3,10):
+            self.parameter_regex = re.compile(r"(\w+)\s*:\s*([\w\[\], \|]+)")
+            self.returns_with_name_regex = re.compile(r"(\w+)\s*:\s*([\w\[\], \|]+)")
+        else:
+            self.parameter_regex = re.compile(r"(\w+)\s*:\s*([\w\[\], ]+)")
+            self.returns_with_name_regex = re.compile(r"(\w+)\s*:\s*([\w\[\], ]+)")
 
     def get_exceptions_raised(self, doc: str) -> List[str]:
         """Returns the exceptions listed as raised in the docstring.

@@ -1,4 +1,5 @@
 import pydoc
+import sys
 from typing_extensions import Literal
 import pytest
 
@@ -56,6 +57,16 @@ class TestGoogleParser():
         return_type = parser.get_return_type(doc, tests.test_class.correct_class)
         assert return_type == int, f"GoogleParser failed assertion"
 
+    @pytest.mark.skipif(sys.version_info < (3,10), reason="requires python3.10")
+    def test_func_returns_union(self) -> None:
+        parser = GoogleParser()
+        doc = pydoc.getdoc(tests.test_class.correct_class.CorrectTestClass.func_returns_union)
+        arguments = parser.get_parameters(doc, tests.test_class.correct_class)
+        assert len(arguments) == 0, f"GoogleParser failed assertion"
+
+        return_type = parser.get_return_type(doc, tests.test_class.correct_class)
+        assert return_type == int | str, f"GoogleParser failed assertion"
+
     def test_func_has_arg_returns_arg(self) -> None:
         parser = GoogleParser()
         doc = pydoc.getdoc(tests.test_class.correct_class.CorrectTestClass.func_has_arg_returns_arg)
@@ -65,6 +76,17 @@ class TestGoogleParser():
 
         return_type = parser.get_return_type(doc, tests.test_class.correct_class)
         assert return_type == float, f"GoogleParser failed assertion"
+
+    @pytest.mark.skipif(sys.version_info < (3,10), reason="requires python3.10")
+    def test_func_has_union_arg(self) -> None:
+        parser = GoogleParser()
+        doc = pydoc.getdoc(tests.test_class.correct_class.CorrectTestClass.func_has_union_arg)
+        arguments = parser.get_parameters(doc, tests.test_class.correct_class)
+        assert len(arguments) == 1, f"GoogleParser failed assertion"
+        assert arguments[0].type == int | str, f"GoogleParser failed assertion"
+
+        return_type = parser.get_return_type(doc, tests.test_class.correct_class)
+        assert return_type == type(None), f"GoogleParser failed assertion"
 
     def test_func_has_raises_doc(self) -> None:
         parser = GoogleParser()
@@ -162,3 +184,16 @@ class TestGoogleParser():
         assert len(params) == 1
         assert params[0].name == 'a'
         assert params[0].type == Literal['b', 'c']
+
+    @pytest.mark.skipif(sys.version_info < (3,10), reason="requires python3.10")
+    def test_function_with_pipe(self) -> None:
+        """
+        Solves: https://github.com/jepperaskdk/pydoctest/issues/46
+        """
+        parser = GoogleParser()
+        doc = pydoc.getdoc(tests.test_parsers.google_class.GoogleClass.function_with_pipe)
+        params = parser.get_parameters(doc, tests.test_parsers.google_class)
+
+        assert len(params) == 1
+        assert params[0].name == 'a'
+        assert params[0].type == int | float

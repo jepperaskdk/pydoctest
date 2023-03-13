@@ -1,4 +1,5 @@
 import pydoc
+import sys
 from typing import Any, Dict
 import pytest
 
@@ -50,6 +51,16 @@ class TestNumpyParser():
         return_type = parser.get_return_type(doc, tests.test_parsers.numpy_class)
         assert return_type == int, f"NumpyParser failed assertion"
 
+    @pytest.mark.skipif(sys.version_info < (3,10), reason="requires python3.10")
+    def test_func_returns_union(self) -> None:
+        parser = NumpyParser()
+        doc = pydoc.getdoc(tests.test_parsers.numpy_class.CorrectTestClass.func_returns_union)
+        arguments = parser.get_parameters(doc, tests.test_parsers.numpy_class)
+        assert len(arguments) == 0, f"NumpyParser failed assertion"
+
+        return_type = parser.get_return_type(doc, tests.test_parsers.numpy_class)
+        assert return_type == int | str, f"NumpyParser failed assertion"
+
     def test_func_returns_int_name_type(self) -> None:
         parser = NumpyParser()
         doc = pydoc.getdoc(tests.test_parsers.numpy_class.CorrectTestClass.func_returns_int_name_type)
@@ -68,6 +79,17 @@ class TestNumpyParser():
 
         return_type = parser.get_return_type(doc, tests.test_parsers.numpy_class)
         assert return_type == float, f"NumpyParser failed assertion"
+
+    @pytest.mark.skipif(sys.version_info < (3,10), reason="requires python3.10")
+    def test_func_has_union_arg(self) -> None:
+        parser = NumpyParser()
+        doc = pydoc.getdoc(tests.test_parsers.numpy_class.CorrectTestClass.func_has_union_arg)
+        arguments = parser.get_parameters(doc, tests.test_parsers.numpy_class)
+        assert len(arguments) == 1, f"NumpyParser failed assertion"
+        assert arguments[0].type == int | str, f"NumpyParser failed assertion"
+
+        return_type = parser.get_return_type(doc, tests.test_parsers.numpy_class)
+        assert return_type == type(None), f"NumpyParser failed assertion"
 
     def test_func_has_raises_doc(self) -> None:
         parser = NumpyParser()
