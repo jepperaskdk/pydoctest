@@ -1,3 +1,7 @@
+import sys
+from typing import Union
+
+
 class CorrectTestClass():
     def empty_func(self) -> None:
         """Empty func
@@ -69,3 +73,20 @@ class CorrectTestClass():
         """
         """
         pass
+
+    if sys.version_info[:2] >= (3,10):
+        def func_returns_union(self) -> Union[int, str]:
+            """Func returns int | str
+
+            Returns:
+                int | str: [description]
+            """
+            pass
+
+        def func_has_union_arg(self, a: Union[int, str]) -> None:
+            """Func takes union argument
+
+            Args:
+                a (int | str): [description]
+            """
+            pass

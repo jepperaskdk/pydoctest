@@ -1,4 +1,5 @@
 import re
+import sys
 from types import ModuleType
 from typing import Dict, List, Optional, Type
 
@@ -16,7 +17,10 @@ SECTION_NAMES = {
 # Regex matches [name] ([type]): [description] with some extra whitespace
 # e.g. this would also match: a      (  int   )   :    kmdkfmdf
 # It terminates with .* meaning a new match is the terminator. This should support multiline descriptions without having to consider tabs/indentation.
-ARGUMENT_REGEX = re.compile(r"\s*(?P<name>(\w+))\s*\((?P<type>[\w\.\[\], \']+)\)\s*:(.*)")
+if sys.version_info[:2] >= (3,10):
+    ARGUMENT_REGEX = re.compile(r"\s*(?P<name>(\w+))\s*\((?P<type>[\w\.\[\], \'\|]+)\)\s*:(.*)")
+else:
+    ARGUMENT_REGEX = re.compile(r"\s*(?P<name>(\w+))\s*\((?P<type>[\w\.\[\], \']+)\)\s*:(.*)")
 
 
 class GoogleParser(Parser):
