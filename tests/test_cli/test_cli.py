@@ -12,8 +12,8 @@ class TestMain(TestCase):
         Tests that verbosity of 2 includes output of module, function, class and method.
         """
         out, err = self.execute_command('python3 -m pydoctest.main --config tests/test_cli/pydoctest.json --verbosity 2')
-        assert 'example_class_cli.py::ExampleCLIClass::a' in out
-        assert 'example_class_cli.py::b' in out
+        assert 'example_class_cli.py ExampleCLIClass::a' in out
+        assert 'example_class_cli.py b' in out
         assert 'Succeeded: 2, Failed: 0, Skipped: 0' in out
         assert len(err) == 0
 

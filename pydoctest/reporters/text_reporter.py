@@ -58,20 +58,24 @@ class TextReporter(Reporter):
         module = ""
         if result.module.__file__:
             # Try to get just workspace relative path
-            module = result.module.__file__.replace(self.config.working_directory, "")
+            module = result.module.__file__
+
+        line_number_part = ""
+        if result.range is not None:
+            line_number_part = f":{result.range.start_line}"
 
         function_name = result.function.__name__
         class_name_if_exists = class_name + '::' if class_name is not None else ''
         if result.result == ResultType.OK:
             if self.config.verbosity == Verbosity.SHOW_ALL:
-                return f"{module}::{class_name_if_exists}{function_name} {SUCCESS}\n"
+                return f"{module}{line_number_part} {class_name_if_exists}{function_name} {SUCCESS}\n"
             return ""
 
         if result.result == ResultType.FAILED:
-            return f"{module}::{class_name_if_exists}{function_name} {FAILED} | {result.fail_reason}\n"
+            return f"{module}{line_number_part} {class_name_if_exists}{function_name} {FAILED} | {result.fail_reason}\n"
 
         if result.result == ResultType.NO_DOC and self.config.fail_on_missing_docstring:
-            return f"{module}::{class_name_if_exists}{function_name} is missing a docstring\n"
+            return f"{module}{line_number_part} {class_name_if_exists}{function_name} is missing a docstring\n"
 
         return ""
 
