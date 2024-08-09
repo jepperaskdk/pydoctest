@@ -107,3 +107,25 @@ class IncorrectTestClass():
             THISDOESNTPARSE
         """
         pass
+
+    def func_optional_mismatch(self, a: int = 0) -> int:
+        """[summary]
+
+        Args:
+            a (int): [description]        <-- a should be marked optional
+
+        Returns:
+            int: [description]
+        """
+        pass
+
+    def func_optional_mismatch2(self, a: int) -> int:
+        """[summary]
+
+        Args:
+            a (int, optional): [description]        <-- a should not be marked optional
+
+        Returns:
+            int: [description]
+        """
+        pass

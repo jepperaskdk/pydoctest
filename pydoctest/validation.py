@@ -223,7 +223,7 @@ def __get_docstring_range(fn: FunctionType, module_type: ModuleType, docstring: 
     Args:
         fn (FunctionType): The function to validate.
         module_type (ModuleType): The module from which the function was extracted.
-        docstring (Optional[str]): Optionally, the docstring.
+        docstring (Optional[str], optional): Optionally, the docstring.
 
     Returns:
         Optional[Range]: The range, if found.
@@ -279,7 +279,7 @@ def validate_function(fn: FunctionType, config: Configuration, module_type: Modu
         return result
 
     sig = inspect.signature(fn)
-    sig_parameters = [Parameter(name, proxy.annotation) for name, proxy in sig.parameters.items() if name != "self"]
+    sig_parameters = [Parameter(name, proxy.annotation, proxy.default is not inspect.Parameter.empty) for name, proxy in sig.parameters.items() if name != "self"]
     sig_return_type = type(None) if sig.return_annotation is None else sig.return_annotation
 
     try:
@@ -317,6 +317,14 @@ def validate_function(fn: FunctionType, config: Configuration, module_type: Modu
         if sigparam.type != docparam.type:
             result.result = ResultType.FAILED
             result.fail_reason = f"Argument type differ. Argument '{sigparam.name}' was expected (from signature) to have type '{sigparam.type}', but has (in docs) type '{docparam.type}'"
+            result.range = __get_docstring_range(fn, module_type, doc)
+            return result
+        
+        if sigparam.is_optional != docparam.is_optional:
+            result.result = ResultType.FAILED
+            sig_optional = 'optional' if sigparam.is_optional else 'not optional'
+            doc_optional = 'optional' if docparam.is_optional else 'not optional'
+            result.fail_reason = f"Argument optional differs. Argument '{sigparam.name}' was expected (from signature) to be {sig_optional}, but is (in docs) {doc_optional}"
             result.range = __get_docstring_range(fn, module_type, doc)
             return result
 

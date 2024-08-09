@@ -125,6 +125,18 @@ class TestDocs():
         assert result.result == ResultType.FAILED
         assert result.fail_reason == "Argument type differ. Argument 'a' was expected (from signature) to have type '<class 'int'>', but has (in docs) type '<class 'float'>'"
 
+    def test_incorrect_class_func_optional_mismatch1(self) -> None:
+        config = Configuration.get_default_configuration()
+        result = validate_function(tests.test_class.incorrect_class.IncorrectTestClass.func_optional_mismatch, config, tests.test_class.incorrect_class)
+        assert result.result == ResultType.FAILED
+        assert result.fail_reason == "Argument optional differs. Argument 'a' was expected (from signature) to be optional, but is (in docs) not optional"
+
+    def test_incorrect_class_func_optional_mismatch2(self) -> None:
+        config = Configuration.get_default_configuration()
+        result = validate_function(tests.test_class.incorrect_class.IncorrectTestClass.func_optional_mismatch2, config, tests.test_class.incorrect_class)
+        assert result.result == ResultType.FAILED
+        assert result.fail_reason == "Argument optional differs. Argument 'a' was expected (from signature) to be not optional, but is (in docs) optional"
+
     # Test counts_class
     def test_counts_class(self) -> None:
         config = Configuration.get_configuration_from_path("tests/test_class/pydoctest_get_counts.json")
