@@ -90,3 +90,14 @@ class CorrectTestClass():
                 a (int | str): [description]
             """
             pass
+
+    def func_with_optional(self, a: int = 0) -> int:
+        """[summary]
+
+        Args:
+            a (int, optional): [description]
+
+        Returns:
+            int: [description]
+        """
+        pass

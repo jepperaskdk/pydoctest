@@ -30,3 +30,12 @@ class GoogleClass():
         """
 
         pass
+
+    def func_optional_argument(self, a: int, b: int = 0) -> None:
+        """Function with optional argument
+
+        Args:
+            a (int): [description]
+            b (int, optional): [description]
+        """
+        pass

@@ -173,7 +173,7 @@ def parse_cli_list(content: str, separator: str = ',') -> List[str]:
 
     Args:
         content (str): The string coming from a cli command.
-        separator (str): The separator to split the list by. Defaults to ','.
+        separator (str, optional): The separator to split the list by. Defaults to ','.
 
     Returns:
         List[str]: The list-items.

@@ -199,6 +199,16 @@ class CorrectTestClass():
         """
         pass
 
+    def func_optional_argument(self, a: int, b: int = 0) -> None:
+        """Function with optional argument
+
+        :param a: [description]
+        :type a: int
+        :param b: [description]
+        :type b: int, optional
+        """
+        pass
+
 
 class RaisesClass():
 

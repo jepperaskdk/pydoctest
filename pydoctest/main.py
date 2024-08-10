@@ -46,7 +46,7 @@ class PyDoctestService():
         """Validate the found modules using the provided reporter.
 
         Args:
-            modules (Optional[List[str]]): Optionally, specify directly the modules rather than discover.
+            modules (Optional[List[str]], optional): Optionally, specify directly the modules rather than discover.
 
         Returns:
             ValidationResult: Information about whether validation succeeded.
@@ -183,7 +183,7 @@ def get_configuration(root_dir: str, config_path: Optional[str] = None) -> Confi
 
     Args:
         root_dir (str): The directory to search in.
-        config_path (Optional[str]): [description]. Defaults to None.
+        config_path (Optional[str], optional): [description]. Defaults to None.
 
     Returns:
         Configuration: Either a configuration matching the specified/found one, or a default one.
@@ -207,7 +207,7 @@ def get_reporter(config: Configuration, reporter: Optional[str] = None) -> Repor
 
     Args:
         config (Configuration): The configuration currently used.
-        reporter (Optional[str]): Desired reporter [text | json]
+        reporter (Optional[str], optional): Desired reporter [text | json]
 
     Raises:
         Exception: Raised if desired reporter does not exist.

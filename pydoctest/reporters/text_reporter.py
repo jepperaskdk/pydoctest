@@ -51,7 +51,7 @@ class TextReporter(Reporter):
 
         Args:
             result (FunctionValidationResult): The result from running Pydoctest on the function.
-            class_name (Optional[str]): Optionally which class this function is run within.
+            class_name (Optional[str], optional): Optionally which class this function is run within.
         Returns:
             str: The output from the function.
         """

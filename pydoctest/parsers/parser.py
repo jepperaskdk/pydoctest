@@ -11,15 +11,17 @@ class Section(IntEnum):
 
 
 class Parameter():
-    def __init__(self, name: str, t: Type) -> None:
+    def __init__(self, name: str, t: Type, is_optional: bool) -> None:
         """Instantiates a function parameter.
 
         Args:
             name (str): The name of the argument.
             t (Type): The type of the argument
+            is_optional (bool): Whether the argument is optional.
         """
         self.name = name
         self.type = t
+        self.is_optional = is_optional
 
 
 class Parser():

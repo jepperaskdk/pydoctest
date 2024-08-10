@@ -1,4 +1,5 @@
 import re
+import os
 import sys
 
 from types import ModuleType
@@ -28,12 +29,8 @@ class NumpyParser(Parser):
         ]
         # Split by word, newline, a number of '-' and newline
         self.section_regex = re.compile("([a-zA-Z]+)\n[-]+\n")
-        if sys.version_info[:2] >= (3,10):
-            self.parameter_regex = re.compile(r"(\w+)\s*:\s*([\w\[\], \|]+)")
-            self.returns_with_name_regex = re.compile(r"(\w+)\s*:\s*([\w\[\], \|]+)")
-        else:
-            self.parameter_regex = re.compile(r"(\w+)\s*:\s*([\w\[\], ]+)")
-            self.returns_with_name_regex = re.compile(r"(\w+)\s*:\s*([\w\[\], ]+)")
+        self.parameter_regex = re.compile(r"(\w+)\s*:\s*([\w\[\], \| \^\w]+?)(?:(, optional)|$)")
+        self.returns_with_name_regex = re.compile(r"(\w+)\s*:\s*([\w\[\], \|]+)")
 
     def get_exceptions_raised(self, doc: str) -> List[str]:
         """Returns the exceptions listed as raised in the docstring.
@@ -115,16 +112,19 @@ class NumpyParser(Parser):
                 raise ParseException()
 
             parameters_section = splits[parameters_idx + 1]
-            matches = self.parameter_regex.findall(parameters_section)
+            parameters: List[Parameter] = []
+
+            for parameters_line in parameters_section.split('\n'):
+                matches = self.parameter_regex.findall(parameters_line)
+                
+                for param_name, param_type, optional in matches:
+                    located_type = get_type_from_module(param_type, module_type)
+                    parameters.append(Parameter(param_name, located_type.type, len(optional.strip()) > 0))
 
             # If we have a parameters section with text, but no matches, we must have bad formatting
-            if len(parameters_section) > 0 and len(matches) == 0:
+            if len(parameters_section) > 0 and len(parameters) == 0:
                 raise ParseException()
-
-            parameters: List[Parameter] = []
-            for param_name, param_type in matches:
-                located_type = get_type_from_module(param_type, module_type)
-                parameters.append(Parameter(param_name, located_type.type))
+        
             return parameters
         except Exception:
             raise ParseException()

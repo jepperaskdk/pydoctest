@@ -173,3 +173,16 @@ Sed condimentum elit non metus sagittis tempor. Cras mollis lacus lacus, vitae p
 
         return_type = parser.get_return_type(doc, tests.test_parsers.sphinx_class)
         assert return_type == Dict[str, Any]
+
+    def test_func_with_optional_argument(self) -> None:
+        parser = SphinxParser()
+        doc = pydoc.getdoc(tests.test_parsers.sphinx_class.CorrectTestClass.func_optional_argument)
+        parameters = parser.get_parameters(doc, tests.test_parsers.sphinx_class)
+        assert len(parameters) == 2
+        assert parameters[0].name == 'a'
+        assert parameters[0].type == int
+        assert parameters[0].is_optional is False
+
+        assert parameters[1].name == 'b'
+        assert parameters[1].type == int
+        assert parameters[1].is_optional is True

@@ -197,3 +197,16 @@ class TestGoogleParser():
         assert len(params) == 1
         assert params[0].name == 'a'
         assert params[0].type == int | float
+
+    def test_func_with_optional_argument(self) -> None:
+        parser = GoogleParser()
+        doc = pydoc.getdoc(tests.test_parsers.google_class.GoogleClass.func_optional_argument)
+        parameters = parser.get_parameters(doc, tests.test_parsers.google_class)
+        assert len(parameters) == 2
+        assert parameters[0].name == 'a'
+        assert parameters[0].type == int
+        assert parameters[0].is_optional is False
+
+        assert parameters[1].name == 'b'
+        assert parameters[1].type == int
+        assert parameters[1].is_optional is True

@@ -21,12 +21,8 @@ class SphinxParser(Parser):
         super().__init__()
         self.parameter_name_regex = re.compile(r":param\s+(\w+):")
 
-        if sys.version_info[:2] >= (3,10):
-            self.parameter_type_regex = re.compile(r":type\s+\w+:\s*([\w\[\], \|]+)")
-            self.return_type_regex = re.compile(r":rtype:\s*([\w\[\], \|]+)")
-        else:
-            self.parameter_type_regex = re.compile(r":type\s+\w+:\s*([\w\[\], ]+)")
-            self.return_type_regex = re.compile(r":rtype:\s*([\w\[\], ]+)")
+        self.parameter_type_regex = re.compile(r":type\s+\w+:\s*([\w\[\], \|\^\w]+?)(?:(, optional)|$)")
+        self.return_type_regex = re.compile(r":rtype:\s*([\w\[\], \|]+)")
 
         self.raises_regex = re.compile(r":raises\s+(\w+):")
 
@@ -105,8 +101,9 @@ class SphinxParser(Parser):
                     match = self.parameter_type_regex.match(line)
                     if match is not None:
                         var_type = match.groups()[0]
+                        var_optional = match.groups()[1]
                         located_type = get_type_from_module(var_type, module_type)
-                        parameters.append(Parameter(var_name, located_type.type))
+                        parameters.append(Parameter(var_name, located_type.type, var_optional is not None))
                         var_name = None
             if var_name is not None:
                 # There must have been an error parsing :type:

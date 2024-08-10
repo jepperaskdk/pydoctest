@@ -17,10 +17,7 @@ SECTION_NAMES = {
 # Regex matches [name] ([type]): [description] with some extra whitespace
 # e.g. this would also match: a      (  int   )   :    kmdkfmdf
 # It terminates with .* meaning a new match is the terminator. This should support multiline descriptions without having to consider tabs/indentation.
-if sys.version_info[:2] >= (3,10):
-    ARGUMENT_REGEX = re.compile(r"\s*(?P<name>(\w+))\s*\((?P<type>[\w\.\[\], \'\|]+)\)\s*:(.*)")
-else:
-    ARGUMENT_REGEX = re.compile(r"\s*(?P<name>(\w+))\s*\((?P<type>[\w\.\[\], \']+)\)\s*:(.*)")
+ARGUMENT_REGEX = re.compile(r"\s*(?P<name>(\w+))\s*\((?P<type>[\w\.\[\], \'\|^\w]+?)(?P<optional>, optional)?\)\s*:(.*)")
 
 
 class GoogleParser(Parser):
@@ -145,10 +142,11 @@ class GoogleParser(Parser):
             start, end = match.span()
             name = match.group('name').strip()
             type = match.group('type').strip()
+            optional = match.group('optional')
 
             try:
                 located_type = get_type_from_module(type, module_type)
-                parameters.append(Parameter(name, located_type.type))
+                parameters.append(Parameter(name, located_type.type, optional is not None))
             except UnknownTypeException:
                 raise ParseException(f"Unknown type '{type}' in '{sections[Section.ARGUMENTS][start:end].strip()}'")
             except Exception:

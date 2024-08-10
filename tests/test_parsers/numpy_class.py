@@ -137,6 +137,18 @@ class IncorrectTestClass():
         """
         pass
 
+    def func_missing_optional_argument(self, a: int, b: int = 0) -> None:
+        """Function with optional argument
+
+        Parameters
+        ----------
+        a : int
+            [description]
+        b : int
+            Missing ", optional" on this argument.
+        """
+        pass
+
 
 class CorrectTestClass():
 
@@ -272,6 +284,18 @@ class CorrectTestClass():
     def func_no_summary(self) -> None:
         """
 
+        """
+        pass
+
+    def func_optional_argument(self, a: int, b: int = 0) -> None:
+        """Function with optional argument
+
+        Parameters
+        ----------
+        a : int
+            [description]
+        b : int, optional
+            [description]
         """
         pass
 
