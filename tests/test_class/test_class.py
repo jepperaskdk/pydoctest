@@ -6,6 +6,7 @@ import tests.test_class.correct_class
 import tests.test_class.nodocstring_class
 import tests.test_class.incorrect_class
 import tests.test_class.raises_class
+import tests.test_class.method_with_module
 
 
 class TestDocs():
@@ -197,4 +198,12 @@ class TestDocs():
         config = Configuration.get_default_configuration()
         config.fail_on_raises_section = True
         result = validate_function(tests.test_class.raises_class.RaisesClass.func_with_raise_multiline_string, config, tests.test_class.incorrect_class)
+        assert result.result == ResultType.OK
+
+    def test_module_class_name_clash(self) -> None:
+        """
+        Solves: https://github.com/jepperaskdk/pydoctest/issues/34.
+        """
+        config = Configuration.get_default_configuration()
+        result = validate_function(tests.test_class.method_with_module.method_module_class_clash, config, tests.test_class.method_with_module)
         assert result.result == ResultType.OK
