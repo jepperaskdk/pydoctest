@@ -41,7 +41,7 @@ def get_type_from_module(type_string: str, module: ModuleType) -> LocateResult:
     """
     # First let pydoc attempt to locate the type
     located_type: Type = cast(Type, locate(type_string))
-    if located_type:
+    if located_type and not isinstance(located_type, ModuleType):
         return LocateResult(located_type, 'locate')
 
     # Try to eval it.

@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.1] - 2024-08-26
+
+### Added
+
+- Fixed bug where module and class name-clash would cause the wrong type to be compared.
+
 ## [0.2.0] - 2024-08-09
 
 ### Added
