@@ -10,7 +10,7 @@ from pydoctest.logging import log
 from pydoctest.configuration import Configuration
 from pydoctest.parsers.parser import Parameter
 from pydoctest.exceptions import ParseException
-from pydoctest.utilities import get_exceptions_raised, is_excluded_function
+from pydoctest.utilities import ensure_is_type, get_exceptions_raised, get_type_from_module, is_excluded_function
 
 
 class Range():
@@ -279,8 +279,8 @@ def validate_function(fn: FunctionType, config: Configuration, module_type: Modu
         return result
 
     sig = inspect.signature(fn)
-    sig_parameters = [Parameter(name, proxy.annotation, proxy.default is not inspect.Parameter.empty) for name, proxy in sig.parameters.items() if name != "self"]
-    sig_return_type = type(None) if sig.return_annotation is None else sig.return_annotation
+    sig_parameters = [Parameter(name, ensure_is_type(proxy.annotation, module_type), proxy.default is not inspect.Parameter.empty) for name, proxy in sig.parameters.items() if name != "self"]
+    sig_return_type = type(None) if sig.return_annotation is None else ensure_is_type(sig.return_annotation, module_type)
 
     try:
         doc_parameters = parser.get_parameters(doc, module_type)

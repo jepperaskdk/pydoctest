@@ -101,3 +101,15 @@ class CorrectTestClass():
             int: [description]
         """
         pass
+
+    def method_with_self_class_union(x: "CorrectTestClass | str") -> "CorrectTestClass":
+        """[summary]
+
+        Args:
+            x (CorrectTestClass | str): [description]
+
+        Returns:
+            CorrectTestClass: [description]
+        """
+        pass
+
