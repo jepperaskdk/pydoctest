@@ -10,7 +10,7 @@ def failing_global_function(a: int) -> int:
     int
         [description]
     """
-    pass
+    return 0
 
 
 class IncorrectTestClass():
@@ -47,13 +47,13 @@ class IncorrectTestClass():
         bool                            <-- incorrect
             [description]
         """
-        pass
+        return 0
 
     def func_has_arg_returns_arg(self, a: int) -> float:
         """Func takes argument and returns argument
                         <-- should have args and returns
         """
-        pass
+        return 0.0
 
     def func_has_raises_doc(self, a: int) -> int:
         """[summary]
@@ -89,7 +89,7 @@ class IncorrectTestClass():
         int
             [description]
         """
-        pass
+        return 0
 
     def func_name_mismatch(self, a: int) -> int:
         """[summary]
@@ -104,7 +104,7 @@ class IncorrectTestClass():
         int
             [description]
         """
-        pass
+        return 0
 
     def func_type_mismatch(self, a: int) -> int:
         """[summary]
@@ -119,7 +119,7 @@ class IncorrectTestClass():
         int
             [description]
         """
-        pass
+        return 0
 
     def func_parse_exception(self, a: int) -> int:
         """[summary]
@@ -135,7 +135,7 @@ class IncorrectTestClass():
         Raises
         ------
         """
-        pass
+        return 0
 
     def func_missing_optional_argument(self, a: int, b: int = 0) -> None:
         """Function with optional argument
@@ -165,7 +165,7 @@ class CorrectTestClass():
         Dict[str, Any]
             [description]
         """
-        pass
+        return {}
 
     def empty_func(self) -> None:
         """Empty func
@@ -190,7 +190,7 @@ class CorrectTestClass():
         int
             [description]
         """
-        pass
+        return 0
 
     def func_returns_union(self) -> Union[int, str]:
         """Func returns int or str
@@ -200,7 +200,7 @@ class CorrectTestClass():
         int | str
             [description]
         """
-        pass
+        return 0
 
     def func_returns_int_name_type(self) -> int:
         """Func returns int as name/type combo
@@ -210,7 +210,7 @@ class CorrectTestClass():
         my_var : int
             [description]
         """
-        pass
+        return 0
 
     def func_has_arg_returns_arg(self, a: int) -> float:
         """Func takes argument and returns argument
@@ -225,7 +225,7 @@ class CorrectTestClass():
         float
             [description]
         """
-        pass
+        return 0.0
 
     def func_has_union_arg(self, a: Union[int, str]) -> None:
         """Func takes int or str
@@ -279,7 +279,7 @@ class CorrectTestClass():
         int
             [description]
         """
-        pass
+        return 0
 
     def func_no_summary(self) -> None:
         """
@@ -298,6 +298,36 @@ class CorrectTestClass():
             [description]
         """
         pass
+
+    def func_self_reference(self, a: "CorrectTestClass") -> "CorrectTestClass":
+        """Function with self reference
+
+        Parameters
+        ----------
+        a : CorrectTestClass
+            [description]
+        
+        Returns
+        -------
+        CorrectTestClass
+            [description]
+        """
+        return CorrectTestClass()
+
+    def func_self_union_reference(self, a: Union["CorrectTestClass", str]) -> Union["CorrectTestClass", str]:
+        """Function with self reference
+
+        Parameters
+        ----------
+        a : Union[CorrectTestClass, str]
+            [description]
+        
+        Returns
+        -------
+        Union[CorrectTestClass, str]
+            [description]
+        """
+        return ""
 
 
 class RaisesClass():

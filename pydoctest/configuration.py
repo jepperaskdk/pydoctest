@@ -1,7 +1,6 @@
 import os
-import sys
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Type
 from enum import IntEnum
 
 from pydoctest.logging import log
@@ -17,7 +16,7 @@ class Verbosity(IntEnum):
     SHOW_ALL = 2
 
 
-PARSERS = {
+PARSERS: Dict[str, Type[Parser]] = {
     'google': GoogleParser,
     'numpy': NumpyParser,
     'sphinx': SphinxParser

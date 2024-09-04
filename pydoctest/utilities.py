@@ -4,7 +4,7 @@ import inspect
 import ast
 
 from types import FunctionType, ModuleType
-from typing import Any, List, Optional, Type, cast
+from typing import Any, List, Optional, Type, Union, cast
 
 from pydoc import locate
 
@@ -255,3 +255,19 @@ def is_excluded_function(function_name: str, exclude_functions: List[str]) -> bo
         bool: If function is excluded.
     """
     return any(pattern_matches(e_p, function_name) for e_p in exclude_functions)
+
+
+def ensure_is_type(typ: Union[Type, str], module_type: ModuleType) -> Type:
+    """
+    Ensures that an input is converted to a type, in case it is in string format.
+
+    Args:
+        typ (Union[Type, str]): The type to convert.
+        module_type (ModuleType): The module to extract the type from.
+
+    Returns:
+        Type: The extracted type.
+    """
+    if isinstance(typ, str):
+        return get_type_from_module(typ, module_type).type
+    return typ

@@ -17,7 +17,7 @@ SECTION_NAMES = {
 # Regex matches [name] ([type]): [description] with some extra whitespace
 # e.g. this would also match: a      (  int   )   :    kmdkfmdf
 # It terminates with .* meaning a new match is the terminator. This should support multiline descriptions without having to consider tabs/indentation.
-ARGUMENT_REGEX = re.compile(r"\s*(?P<name>(\w+))\s*\((?P<type>[\w\.\[\], \'\|^\w]+?)(?P<optional>, optional)?\)\s*:(.*)")
+ARGUMENT_REGEX = re.compile(r"\s*(?P<name>(\w+))\s*\((?P<type>[\w\.\[\], \"\'\|^\w]+?)(?P<optional>, optional)?\)\s*:(.*)")
 
 
 class GoogleParser(Parser):

@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.2] - 2024-08-28
+
+- Fixed bug where self referenced union string did not parse. See https://github.com/jepperaskdk/pydoctest/issues/55.
+
 ## [0.2.1] - 2024-08-26
 
 ### Added

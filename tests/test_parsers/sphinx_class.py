@@ -7,7 +7,7 @@ def failing_global_function(a: int) -> int:
     :return: [description]
     :rtype: int
     """
-    pass
+    return 0
 
 
 class IncorrectTestClass():
@@ -36,14 +36,14 @@ class IncorrectTestClass():
         :return: [description]
         :rtype: bool                        <-- incorrect
         """
-        pass
+        return 0
 
     def func_has_arg_returns_arg(self, a: int) -> float:
         """Func takes argument and returns argument
 
                                             <-- should have args and returns
         """
-        pass
+        return 0.0
 
     def func_has_raises_doc(self, a: int) -> int:
         """[summary]
@@ -71,7 +71,7 @@ class IncorrectTestClass():
         :return: [description]
         :rtype: int
         """
-        pass
+        return 0
 
     def func_name_mismatch(self, a: int) -> int:
         """[summary]
@@ -81,7 +81,7 @@ class IncorrectTestClass():
         :return: [description]
         :rtype: int
         """
-        pass
+        return 0
 
     def func_type_mismatch(self, a: int) -> int:
         """[summary]
@@ -91,7 +91,7 @@ class IncorrectTestClass():
         :return: [description]
         :rtype: int
         """
-        pass
+        return 0
 
     def func_parse_exception(self, a: int) -> int:
         """[summary]
@@ -102,7 +102,7 @@ class IncorrectTestClass():
         :return: [description]
         :THISDOESNTPARSE
         """
-        pass
+        return 0
 
 
 class CorrectTestClass():
@@ -114,7 +114,7 @@ class CorrectTestClass():
         :return: [description]
         :rtype: Dict[str, Any]
         """
-        pass
+        return {}
 
     def empty_func(self) -> None:
         """Empty func
@@ -135,7 +135,7 @@ class CorrectTestClass():
         :return: [description]
         :rtype: int
         """
-        pass
+        return 0
 
     def func_returns_union(self) -> Union[int, str]:
         """Func returns int or str
@@ -143,7 +143,7 @@ class CorrectTestClass():
         :return: [description]
         :rtype: int | str
         """
-        pass
+        return 0
 
     def func_has_arg_returns_arg(self, a: int) -> float:
         """Func takes argument and returns argument
@@ -153,7 +153,7 @@ class CorrectTestClass():
         :return: [description]
         :rtype: float
         """
-        pass
+        return 0.0
 
     def func_has_union_arg(self, a: Union[int, str]) -> None:
         """Func takes int or str
@@ -191,7 +191,7 @@ class CorrectTestClass():
         :return: [description]
         :rtype: int
         """
-        pass
+        return 0
 
     def func_no_summary(self) -> None:
         """
@@ -208,6 +208,26 @@ class CorrectTestClass():
         :type b: int, optional
         """
         pass
+
+    def func_self_reference(self, a: "CorrectTestClass") -> "CorrectTestClass":
+        """Function with self reference
+
+        :param a: [description]
+        :type a: CorrectTestClass
+        :return: [description]
+        :rtype: CorrectTestClass
+        """
+        return CorrectTestClass()
+
+    def func_self_union_reference(self, a: Union["CorrectTestClass", str]) -> Union["CorrectTestClass", str]:
+        """Function with self reference
+
+        :param a: [description]
+        :type a: Union[CorrectTestClass, str]
+        :return: [description]
+        :rtype: Union[CorrectTestClass, str]
+        """
+        return ""
 
 
 class RaisesClass():
