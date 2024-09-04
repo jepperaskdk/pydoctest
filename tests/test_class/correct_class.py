@@ -22,7 +22,7 @@ class CorrectTestClass():
         Returns:
             int: [description]
         """
-        pass
+        return 0
 
     def func_has_arg_returns_arg(self, a: int) -> float:
         """Func takes argument and returns argument
@@ -33,7 +33,7 @@ class CorrectTestClass():
         Returns:
             float: [description]
         """
-        pass
+        return 0.0
 
     def func_has_raises_doc(self, a: int) -> int:
         """[summary]
@@ -67,21 +67,21 @@ class CorrectTestClass():
         Returns:
             int: [description]
         """
-        pass
+        return 0
 
     def func_no_summary(self) -> None:
         """
         """
         pass
 
-    if sys.version_info[:2] >= (3,10):
+    if sys.version_info[:2] >= (3, 10):
         def func_returns_union(self) -> Union[int, str]:
             """Func returns int | str
 
             Returns:
                 int | str: [description]
             """
-            pass
+            return 0
 
         def func_has_union_arg(self, a: Union[int, str]) -> None:
             """Func takes union argument
@@ -100,16 +100,27 @@ class CorrectTestClass():
         Returns:
             int: [description]
         """
-        pass
+        return 0
 
-    def method_with_self_class_union(x: "CorrectTestClass | str") -> "CorrectTestClass":
+    if sys.version_info[:2] >= (3, 10):
+        def method_with_self_class_union_3_10(x: "CorrectTestClass | str") -> "CorrectTestClass | str":
+            """[summary]
+
+            Args:
+                x (CorrectTestClass | str): [description]
+
+            Returns:
+                CorrectTestClass | str: [description]
+            """
+            return ""
+
+    def method_with_self_class_union(x: Union["CorrectTestClass", str]) -> Union["CorrectTestClass", str]:
         """[summary]
 
         Args:
-            x (CorrectTestClass | str): [description]
+            x (Union["CorrectTestClass", str]): [description]
 
         Returns:
-            CorrectTestClass: [description]
+            Union["CorrectTestClass", str]: [description]
         """
-        pass
-
+        return ""

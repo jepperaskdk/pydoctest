@@ -1,3 +1,6 @@
+import sys
+
+import pytest
 from pydoctest.configuration import Configuration
 from pydoctest.validation import ResultType, validate_class, validate_function
 from pydoctest.main import PyDoctestService
@@ -10,7 +13,6 @@ import tests.test_class.method_with_module
 
 
 class TestDocs():
-    # test correct_class
     def test_correct_class_module(self) -> None:
         config = Configuration.get_configuration_from_path("tests/test_class/pydoctest_correct_class.json")
 
@@ -214,4 +216,13 @@ class TestDocs():
         """
         config = Configuration.get_default_configuration()
         result = validate_function(tests.test_class.correct_class.CorrectTestClass.method_with_self_class_union, config, tests.test_class.correct_class)
+        assert result.result == ResultType.OK
+
+    @pytest.mark.skipif(sys.version_info < (3, 10), reason="requires python3.10")
+    def test_self_class_union_3_10(self) -> None:
+        """
+        Solves: https://github.com/jepperaskdk/pydoctest/issues/55
+        """
+        config = Configuration.get_default_configuration()
+        result = validate_function(tests.test_class.correct_class.CorrectTestClass.method_with_self_class_union_3_10, config, tests.test_class.correct_class)
         assert result.result == ResultType.OK

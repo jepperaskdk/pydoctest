@@ -1,5 +1,6 @@
 import pydoc
 import sys
+from typing import Union
 from typing_extensions import Literal
 import pytest
 
@@ -185,7 +186,7 @@ class TestGoogleParser():
         assert params[0].name == 'a'
         assert params[0].type == Literal['b', 'c']
 
-    @pytest.mark.skipif(sys.version_info < (3,10), reason="requires python3.10")
+    @pytest.mark.skipif(sys.version_info < (3, 10), reason="requires python3.10")
     def test_function_with_pipe(self) -> None:
         """
         Solves: https://github.com/jepperaskdk/pydoctest/issues/46
@@ -210,3 +211,21 @@ class TestGoogleParser():
         assert parameters[1].name == 'b'
         assert parameters[1].type == int
         assert parameters[1].is_optional is True
+
+    def test_func_with_self_referenced_type(self) -> None:
+        parser = GoogleParser()
+        doc = pydoc.getdoc(tests.test_parsers.google_class.GoogleClass.func_self_reference)
+        parameters = parser.get_parameters(doc, tests.test_parsers.google_class)
+        return_type = parser.get_return_type(doc, tests.test_parsers.google_class)
+
+        assert parameters[0].type is tests.test_parsers.google_class.GoogleClass
+        assert return_type is tests.test_parsers.google_class.GoogleClass
+
+    def test_func_with_self_referenced_union_type(self) -> None:
+        parser = GoogleParser()
+        doc = pydoc.getdoc(tests.test_parsers.google_class.GoogleClass.func_self_union_reference)
+        parameters = parser.get_parameters(doc, tests.test_parsers.google_class)
+        return_type = parser.get_return_type(doc, tests.test_parsers.google_class)
+
+        assert parameters[0].type is Union[tests.test_parsers.google_class.GoogleClass, str]
+        assert return_type is Union[tests.test_parsers.google_class.GoogleClass, str]

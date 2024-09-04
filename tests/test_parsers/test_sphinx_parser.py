@@ -1,6 +1,6 @@
 import pydoc
 import sys
-from typing import Dict, Any
+from typing import Dict, Any, Union
 import pytest
 
 from pydoctest.parsers.sphinx_parser import SphinxParser
@@ -186,3 +186,21 @@ Sed condimentum elit non metus sagittis tempor. Cras mollis lacus lacus, vitae p
         assert parameters[1].name == 'b'
         assert parameters[1].type == int
         assert parameters[1].is_optional is True
+
+    def test_func_with_self_referenced_type(self) -> None:
+        parser = SphinxParser()
+        doc = pydoc.getdoc(tests.test_parsers.sphinx_class.CorrectTestClass.func_self_reference)
+        parameters = parser.get_parameters(doc, tests.test_parsers.sphinx_class)
+        return_type = parser.get_return_type(doc, tests.test_parsers.sphinx_class)
+
+        assert parameters[0].type is tests.test_parsers.sphinx_class.CorrectTestClass
+        assert return_type is tests.test_parsers.sphinx_class.CorrectTestClass
+
+    def test_func_with_self_referenced_union_type(self) -> None:
+        parser = SphinxParser()
+        doc = pydoc.getdoc(tests.test_parsers.sphinx_class.CorrectTestClass.func_self_union_reference)
+        parameters = parser.get_parameters(doc, tests.test_parsers.sphinx_class)
+        return_type = parser.get_return_type(doc, tests.test_parsers.sphinx_class)
+
+        assert parameters[0].type is Union[tests.test_parsers.sphinx_class.CorrectTestClass, str]
+        assert return_type is Union[tests.test_parsers.sphinx_class.CorrectTestClass, str]

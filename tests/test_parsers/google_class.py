@@ -29,7 +29,7 @@ class GoogleClass():
             (int | float): Union type return value
         """
 
-        pass
+        return 0
 
     def func_optional_argument(self, a: int, b: int = 0) -> None:
         """Function with optional argument
@@ -39,3 +39,26 @@ class GoogleClass():
             b (int, optional): [description]
         """
         pass
+
+    def func_self_reference(self, a: "GoogleClass") -> "GoogleClass":
+        """Function with self reference
+
+        Args:
+            a (GoogleClass): [description]
+        
+        Returns:
+            GoogleClass: [description]
+        """
+        return GoogleClass()
+
+    def func_self_union_reference(self, a: Union["GoogleClass", str]) -> Union["GoogleClass", str]:
+        """Function with self reference
+
+        Args:
+            a (Union[GoogleClass, str]): [description]
+        
+        Returns:
+            Union[GoogleClass, str]: [description]
+        """
+        return ""
+
